@@ -9,17 +9,23 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    LoginAccountDialog.cpp \
+    createaccountDialog.cpp \
     databasemanager.cpp \
     main.cpp \
     mainwindow.cpp \
     series.cpp
 
 HEADERS += \
+    LoginAccountDialog.h \
+    createaccountDialog.h \
     databasemanager.h \
     mainwindow.h \
     series.h
 
 FORMS += \
+    createAccount.ui \
+    loginAccount.ui \
     mainwindow.ui
 
 # Default rules for deployment.

@@ -17,5 +17,9 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+private slots:
+    void createAccount();
+    void loginAccount();
 };
 #endif // MAINWINDOW_H

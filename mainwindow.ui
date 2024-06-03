@@ -11,11 +11,204 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Program do zarządzania kolekcją seriali</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar"/>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="inputLayout">
+      <item>
+       <widget class="QLineEdit" name="titleInput">
+        <property name="placeholderText">
+         <string>Tytuł</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="genreInput">
+        <item>
+         <property name="text">
+          <string>Drama</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Comedy</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Thriller</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Sci-Fi</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Fantasy</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDateEdit" name="startDateInput">
+        <property name="displayFormat">
+         <string>yyyy-MM-dd</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDateEdit" name="endDateInput">
+        <property name="displayFormat">
+         <string>yyyy-MM-dd</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="episodesWatchedInput">
+        <property name="minimum">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="urlInput">
+        <property name="placeholderText">
+         <string>URL</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="statusInput">
+        <item>
+         <property name="text">
+          <string>Oglądane</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Ukończone</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Wstrzymane</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Porzucone</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="addButton">
+        <property name="text">
+         <string>Dodaj serial</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="updateButton">
+        <property name="text">
+         <string>Aktualizuj serial</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="searchLayout">
+      <item>
+       <widget class="QLineEdit" name="searchInput">
+        <property name="placeholderText">
+         <string>Szukaj</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="searchButton">
+        <property name="text">
+         <string>Szukaj</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QTableWidget" name="seriesTable">
+      <column>
+       <property name="text">
+        <string>Tytuł</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Gatunek</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Data rozpoczęcia</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Data zakończenia</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Odcinki obejrzane</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>URL</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Status</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuOpcje">
+    <property name="title">
+     <string>Opcje</string>
+    </property>
+    <addaction name="createAccountAction"/>
+    <addaction name="loginAccountAction"/>
+   </widget>
+   <addaction name="menuOpcje"/>
+  </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="createAccountAction">
+   <property name="text">
+    <string>Utwórz konto</string>
+   </property>
+  </action>
+  <action name="loginAccountAction">
+   <property name="text">
+    <string>Zaloguj się</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

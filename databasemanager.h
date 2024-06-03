@@ -10,7 +10,7 @@
 class DatabaseManager
 {
 public:
-    DatabaseManager(const QString& host, const QString& user, const QString& password, const QString& dbName);
+    DatabaseManager(const QString& pathToDb);
     ~DatabaseManager();
 
     bool addSeries(const Series& series);
