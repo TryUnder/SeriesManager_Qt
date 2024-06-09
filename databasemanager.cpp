@@ -38,6 +38,17 @@ DatabaseManager::DatabaseManager(const QString& pathToDb)
         }
 }
 
+bool DatabaseManager::doesUserExist() {
+    QSqlQuery query("SELECT COUNT(*) FROM user");
+    if (query.exec()) {
+        if (query.next()) {
+            return query.value(0).toInt() > 0;
+        }
+    }
+
+    return false;
+}
+
 DatabaseManager::~DatabaseManager() {
     m_db.close();
 }

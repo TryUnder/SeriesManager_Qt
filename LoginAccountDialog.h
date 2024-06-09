@@ -16,6 +16,8 @@ public:
     explicit LoginAccountDialog(QWidget *parent = nullptr);
     ~LoginAccountDialog();
 
+    void loginAccount();
+
 public:
     Ui::LoginAccountDialog *ui;
 };

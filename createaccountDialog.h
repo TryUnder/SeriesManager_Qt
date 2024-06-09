@@ -15,6 +15,8 @@ public:
     explicit CreateAccountDialog(QWidget *parent = nullptr);
     ~CreateAccountDialog();
 
+    void createAccount();
+
 public:
     Ui::CreateAccountDialog *ui;
 };

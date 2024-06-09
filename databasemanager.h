@@ -18,6 +18,7 @@ public:
     bool updateSeries(const Series& series);
     bool deleteSeries(int id);
 
+    bool doesUserExist();
 private:
     QSqlDatabase m_db;
 };

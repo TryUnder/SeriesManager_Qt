@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "databasemanager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,6 +18,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    DatabaseManager dbManager;
+    bool isLoggedIn;
 
 private slots:
     void createAccount();
