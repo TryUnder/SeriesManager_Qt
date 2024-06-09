@@ -68,11 +68,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="episodesWatchedInput">
-        <property name="minimum">
-         <number>0</number>
-        </property>
-       </widget>
+       <widget class="QSpinBox" name="episodesWatchedInput"/>
       </item>
       <item>
        <widget class="QLineEdit" name="urlInput">
@@ -90,57 +86,43 @@
         </item>
         <item>
          <property name="text">
-          <string>Ukończone</string>
+          <string>Oczekujące</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Wstrzymane</string>
+          <string>Zakończone</string>
          </property>
         </item>
-        <item>
-         <property name="text">
-          <string>Porzucone</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="addButton">
-        <property name="text">
-         <string>Dodaj serial</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="updateButton">
-        <property name="text">
-         <string>Aktualizuj serial</string>
-        </property>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="searchLayout">
-      <item>
-       <widget class="QLineEdit" name="searchInput">
-        <property name="placeholderText">
-         <string>Szukaj</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="searchButton">
-        <property name="text">
-         <string>Szukaj</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="QPushButton" name="addButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Dodaj serial</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="updateButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Załaduj seriale</string>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QTableWidget" name="seriesTable">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <column>
        <property name="text">
         <string>Tytuł</string>
@@ -173,7 +155,7 @@
       </column>
       <column>
        <property name="text">
-        <string>Status</string>
+        <string>Kategoria</string>
        </property>
       </column>
      </widget>
@@ -195,10 +177,23 @@
     </property>
     <addaction name="createAccountAction"/>
     <addaction name="loginAccountAction"/>
+    <addaction name="actionWyloguj"/>
+    <addaction name="actionPrzypomnij_has_o"/>
+    <addaction name="actionUsu_konto"/>
    </widget>
    <addaction name="menuOpcje"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="createAccountAction_3">
+   <property name="text">
+    <string>Utwórz konto</string>
+   </property>
+  </action>
+  <action name="loginAccountAction_2">
+   <property name="text">
+    <string>Zaloguj się</string>
+   </property>
+  </action>
   <action name="createAccountAction">
    <property name="text">
     <string>Utwórz konto</string>
@@ -207,6 +202,21 @@
   <action name="loginAccountAction">
    <property name="text">
     <string>Zaloguj się</string>
+   </property>
+  </action>
+  <action name="actionWyloguj">
+   <property name="text">
+    <string>Wyloguj się</string>
+   </property>
+  </action>
+  <action name="actionPrzypomnij_has_o">
+   <property name="text">
+    <string>Przypomnij hasło</string>
+   </property>
+  </action>
+  <action name="actionUsu_konto">
+   <property name="text">
+    <string>Usuń konto</string>
    </property>
   </action>
  </widget>

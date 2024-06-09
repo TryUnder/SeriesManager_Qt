@@ -20,9 +20,12 @@ private:
     Ui::MainWindow *ui;
     DatabaseManager dbManager;
     bool isLoggedIn;
+    void updateUIBasedOnLoginStatus();
 
 private slots:
     void createAccount();
     void loginAccount();
+    void addSeries();
+    void loadSeries();
 };
 #endif // MAINWINDOW_H
