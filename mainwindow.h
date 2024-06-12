@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTableWidgetItem>
 #include "databasemanager.h"
 
 QT_BEGIN_NAMESPACE
@@ -27,5 +28,7 @@ private slots:
     void loginAccount();
     void addSeries();
     void loadSeries();
+    void updateSeries(QTableWidgetItem* item);
+    void removeSeries();
 };
 #endif // MAINWINDOW_H

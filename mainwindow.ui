@@ -223,12 +223,12 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="updateButton">
+     <widget class="QPushButton" name="deleteButton">
       <property name="enabled">
        <bool>false</bool>
       </property>
       <property name="text">
-       <string>Załaduj seriale</string>
+       <string>Usuń serial</string>
       </property>
      </widget>
     </item>

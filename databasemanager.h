@@ -15,6 +15,7 @@ public:
 
     bool addSeries(const Series& series);
     QVector<Series> getSeries() const;
+    Series getSeriesById(int id) const;
     bool updateSeries(const Series& series);
     bool deleteSeries(int id);
 
