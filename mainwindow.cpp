@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
     , isLoggedIn(false)
 {
     ui->setupUi(this);
+    ui->genreInput->setMaximumWidth(75);
+    ui->genreInput->setMaximumHeight(50);
     connect(ui->createAccountAction, &QAction::triggered, this, &MainWindow::createAccount);
     connect(ui->loginAccountAction, &QAction::triggered, this, &MainWindow::loginAccount);
     connect(ui->addButton, &QPushButton::clicked, this, &MainWindow::addSeries);
@@ -48,30 +50,27 @@ void MainWindow::addSeries() {
     }
 
     QString title = ui->titleInput->text();
-    QString genre = ui->genreInput->currentText();
+    QList<QListWidgetItem*> selectedGenres = ui->genreInput->selectedItems();
+    QStringList genreList;
+    for (auto& item : selectedGenres) {
+        genreList.append(item->text());
+    }
+    QString genres = genreList.join(", ");
     QDate startDate = ui->startDateInput->date();
     QDate endDate = ui->endDateInput->date();
     int episodesWatched = ui->episodesWatchedInput->value();
     QString url = ui->urlInput->text();
     QString status = ui->statusInput->currentText();
+    int grade = ui->ratingSlider->value();
 
     if (title.isEmpty()) {
         QMessageBox::warning(this, "Błąd", "Proszę wypełnić tytuł");
         return;
     }
 
-    QSqlQuery query;
-    query.prepare("INSERT INTO Series (title, genre, starting_date, ending_date, episodes_watched, url, category) "
-                  "VALUES (:title, :genre, :starting_date, :ending_date, :episodes_watched, :url, :category)");
-    query.bindValue(":title", title);
-    query.bindValue(":genre", genre);
-    query.bindValue(":starting_date", startDate.toString("yyyy-MM-dd"));
-    query.bindValue(":ending_date", endDate.toString("yyyy-MM-dd"));
-    query.bindValue(":episodes_watched", episodesWatched);
-    query.bindValue(":url", url);
-    query.bindValue(":category", status);
+    Series series(-1, title, genres, startDate, endDate, episodesWatched, url, status, grade);
 
-    if (query.exec()) {
+    if (dbManager.addSeries(series)){
         QMessageBox::information(this, "Sukces", "Serial został dodany");
         loadSeries();
     } else {
@@ -85,21 +84,18 @@ void MainWindow::loadSeries() {
         return;
     }
 
-    QSqlQuery query("SELECT title, genre, starting_date, ending_date, episodes_watched, url, category FROM Series");
-
-    ui->seriesTable->setRowCount(0);
-
-    int row = 0;
-    while(query.next()) {
-        ui->seriesTable->insertRow(row);
-        ui->seriesTable->setItem(row, 0, new QTableWidgetItem(query.value("title").toString()));
-        ui->seriesTable->setItem(row, 1, new QTableWidgetItem(query.value("genre").toString()));
-        ui->seriesTable->setItem(row, 2, new QTableWidgetItem(query.value("starting_date").toString()));
-        ui->seriesTable->setItem(row, 3, new QTableWidgetItem(query.value("ending_date").toString()));
-        ui->seriesTable->setItem(row, 4, new QTableWidgetItem(query.value("episodes_watched").toString()));
-        ui->seriesTable->setItem(row, 5, new QTableWidgetItem(query.value("url").toString()));
-        ui->seriesTable->setItem(row, 6, new QTableWidgetItem(query.value("category").toString()));
-        row++;
+    QVector<Series> seriesList = dbManager.getSeries();
+    for (auto& serie : seriesList) {
+        int id = serie.getId() - 1;
+        ui->seriesTable->insertRow(id);
+        ui->seriesTable->setItem(id, 0, new QTableWidgetItem(serie.getTitle()));
+        ui->seriesTable->setItem(id, 1, new QTableWidgetItem(serie.getGenre()));
+        ui->seriesTable->setItem(id, 2, new QTableWidgetItem(serie.getStartingDate().toString()));
+        ui->seriesTable->setItem(id, 3, new QTableWidgetItem(serie.getEndingDate().toString()));
+        ui->seriesTable->setItem(id, 4, new QTableWidgetItem(serie.getEpisodesWatched()));
+        ui->seriesTable->setItem(id, 5, new QTableWidgetItem(serie.getUrl()));
+        ui->seriesTable->setItem(id, 6, new QTableWidgetItem(serie.getCategory()));
+        ui->seriesTable->setItem(id, 7, new QTableWidgetItem(serie.getGrade()));
     }
 }
 

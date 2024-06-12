@@ -9,33 +9,7 @@ DatabaseManager::DatabaseManager(const QString& pathToDb)
 
     if (!m_db.open()) {
         qDebug() << "Database connection error: " << m_db.lastError().text();
-    }
-
-    QSqlQuery query("SELECT * FROM Series");
-    query.exec();
-
-        while (query.next()) {
-            QString id = query.value("id").toString();
-            QString title = query.value("title").toString();
-            QString genre = query.value("genre").toString();
-            QString starting_date = query.value("starting_date").toString();
-            QString ending_date = query.value("ending_date").toString();
-            QString episodes_watched = query.value("episodes_watched").toString();
-            QString url = query.value("url").toString();
-            QString category = query.value("category").toString();
-            QString grade = query.value("grade").toString();
-
-            qDebug() << "ID:" << id;
-            qDebug() << "Tytuł:" << title;
-            qDebug() << "Gatunek:" << genre;
-            qDebug() << "Data rozpoczęcia:" << starting_date;
-            qDebug() << "Data zakończenia:" << ending_date;
-            qDebug() << "Obejrzane odcinki:" << episodes_watched;
-            qDebug() << "URL:" << url;
-            qDebug() << "Kategoria:" << category;
-            qDebug() << "Ocena:" << grade;
-            qDebug() << "---------------------------";
-        }
+    }    
 }
 
 bool DatabaseManager::doesUserExist() {
@@ -47,6 +21,52 @@ bool DatabaseManager::doesUserExist() {
     }
 
     return false;
+}
+
+bool DatabaseManager::addSeries(const Series& series) {
+    QSqlQuery query;
+    query.prepare("INSERT INTO Series (title, genre, starting_date, ending_date, episodes_watched, url, category, grade)"
+                  "VALUES (:title, :genre, :starting_date, :ending_date, :episodes_watched, :url, :category, :grade)");
+    query.bindValue(":title", series.getTitle());
+    query.bindValue(":genre", series.getGenre());
+    query.bindValue(":starting_date", series.getStartingDate().toString("yyyy-MM-dd"));
+    query.bindValue(":ending_date", series.getEndingDate().toString("yyyy-MM-dd"));
+    query.bindValue(":episodes_watched", series.getEpisodesWatched());
+    query.bindValue(":url", series.getUrl());
+    query.bindValue(":category", series.getCategory());
+    query.bindValue(":grade", series.getGrade());
+
+    return query.exec();
+}
+
+QVector<Series> DatabaseManager::getSeries() const {
+    QVector<Series> seriesList;
+    QSqlQuery query("SELECT id, title, genre, starting_date, ending_date, episodes_watched, url, category, grade FROM Series");
+
+    while(query.next()) {
+        Series series(
+            query.value("id").toInt(),
+            query.value("title").toString(),
+            query.value("genre").toString(),
+            query.value("starting_date").toDate(),
+            query.value("ending_date").toDate(),
+            query.value("episodes_watched").toInt(),
+            query.value("url").toString(),
+            query.value("category").toString(),
+            query.value("grade").toInt()
+        );
+        seriesList.append(series);
+    }
+
+    return seriesList;
+}
+
+bool DatabaseManager::deleteSeries(int id) {
+    QSqlQuery query;
+    query.prepare("DELETE FROM Series WHERE id = :id");
+    query.bindValue(":id", id);
+
+    return query.exec();
 }
 
 DatabaseManager::~DatabaseManager() {
