@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QTableWidgetItem>
 #include "databasemanager.h"
+#include "accountmanager.h"
+#include "remindpassword.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,6 +25,7 @@ private:
     DatabaseManager dbManager;
     bool isLoggedIn;
     void updateUIBasedOnLoginStatus();
+    accountmanager accountManager;
 
 private slots:
     void createAccount();
@@ -31,5 +34,6 @@ private slots:
     void loadSeries();
     void removeSeries();
     void acceptChanges();
+    void remindPassword();
 };
 #endif // MAINWINDOW_H

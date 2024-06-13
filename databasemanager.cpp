@@ -1,6 +1,7 @@
 #include "databasemanager.h"
 #include <QDebug>
 #include <QSqlError>
+#include <QPair>
 
 DatabaseManager::DatabaseManager(const QString& pathToDb)
 {
@@ -25,6 +26,40 @@ bool DatabaseManager::doesUserExist() {
     return false;
 }
 
+bool DatabaseManager::createAccount(const QString& username, const QString& password) {
+    QSqlQuery query;
+    query.prepare("INSERT INTO user (username, password) VALUES (:username, :password)");
+    query.bindValue(":username", username);
+    query.bindValue(":password", password);
+
+    return query.exec();
+}
+
+bool DatabaseManager::loginAccount(const QString &username, const QString &password) {
+    QSqlQuery query;
+    query.prepare("SELECT COUNT(*) FROM user WHERE username = :username AND password = :password");
+    query.bindValue(":username", username);
+    query.bindValue(":password", password);
+
+    return query.exec();
+}
+
+QPair<bool, QString> DatabaseManager::remindPassword(const QString &username) {
+    QSqlQuery query;
+    query.prepare("SELECT password FROM user WHERE username = :username");
+    query.bindValue(":username", username);
+    QPair<bool, QString> remindedPasswordPair;
+
+    if (query.exec() && query.next()) {
+        remindedPasswordPair.first = true;
+        remindedPasswordPair.second = query.value("password").toString();
+    } else {
+        remindedPasswordPair.first = false;
+        remindedPasswordPair.second = "";
+    }
+    return remindedPasswordPair;
+}
+
 bool DatabaseManager::addSeries(const Series& series) {
     QSqlQuery query;
     query.prepare("INSERT INTO Series (title, genre, starting_date, ending_date, episodes_watched, url, category, grade)"
@@ -42,7 +77,6 @@ bool DatabaseManager::addSeries(const Series& series) {
 }
 
 QVector<Series> DatabaseManager::getSeries() const {
-    qDebug() << "JEST";
     QVector<Series> seriesList;
     QSqlQuery query("SELECT id, title, genre, starting_date, ending_date, episodes_watched, url, category, grade FROM Series");
 
@@ -60,7 +94,7 @@ QVector<Series> DatabaseManager::getSeries() const {
         );
         seriesList.append(series);
     }
-    qDebug() << "JEST_2";
+
     return seriesList;
 }
 

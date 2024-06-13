@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , dbManager("D:\\P.R.I.V\\Uczelnia\\Semestr_VIII\\Programowanie_Wieloplatformowe\\Projekt_Seriale_Db.db")
     , isLoggedIn(false)
+    , accountManager(&dbManager)
 {
     ui->setupUi(this);
     ui->genreInput->setMaximumWidth(75);
@@ -20,14 +21,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->loginAccountAction, &QAction::triggered, this, &MainWindow::loginAccount);
     connect(ui->addButton, &QPushButton::clicked, this, &MainWindow::addSeries);
     connect(ui->deleteButton, &QPushButton::clicked, this, &MainWindow::removeSeries);
+    connect(ui->actionPrzypomnijHaslo, &QAction::triggered, this, &MainWindow::remindPassword);
 
+    ui->seriesTable->setSortingEnabled(true);
 
     updateUIBasedOnLoginStatus();
 }
 
 void MainWindow::createAccount() {
     if (!dbManager.doesUserExist()) {
-        CreateAccountDialog createAccountDialog(this);
+        CreateAccountDialog createAccountDialog(&dbManager, this);
         createAccountDialog.exec();
     } else {
         QMessageBox::information(this, "Informacja", "Konto już istnieje. Zaloguj się.");
@@ -35,9 +38,9 @@ void MainWindow::createAccount() {
 }
 
 void MainWindow::loginAccount() {
-    LoginAccountDialog loginAccountDialog(this);
+    LoginAccountDialog loginAccountDialog(&dbManager, this);
 
-    if (isLoggedIn == true) {
+    if (isLoggedIn) {
         return;
     }
 
@@ -46,6 +49,16 @@ void MainWindow::loginAccount() {
         QMessageBox::information(this, "Sukces", "Zalogowano pomyślnie");
         updateUIBasedOnLoginStatus();
     }
+}
+
+void MainWindow::remindPassword() {
+    RemindPassword remindPassword(&dbManager, this);
+
+    if (isLoggedIn) {
+        return;
+    }
+
+    remindPassword.exec();
 }
 
 void MainWindow::addSeries() {

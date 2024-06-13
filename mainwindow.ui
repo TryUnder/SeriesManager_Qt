@@ -302,7 +302,7 @@
     <addaction name="createAccountAction"/>
     <addaction name="loginAccountAction"/>
     <addaction name="actionWyloguj"/>
-    <addaction name="actionPrzypomnij_has_o"/>
+    <addaction name="actionPrzypomnijHaslo"/>
     <addaction name="actionUsu_konto"/>
    </widget>
    <addaction name="menuOpcje"/>
@@ -333,7 +333,7 @@
     <string>Wyloguj się</string>
    </property>
   </action>
-  <action name="actionPrzypomnij_has_o">
+  <action name="actionPrzypomnijHaslo">
    <property name="text">
     <string>Przypomnij hasło</string>
    </property>

@@ -1,11 +1,13 @@
 #include "createaccountDialog.h"
 #include "ui_createaccount.h"
+#include "accountmanager.h"
 #include <QSqlQuery>
 #include <QMessageBox>
 
-CreateAccountDialog::CreateAccountDialog(QWidget* parent) :
+CreateAccountDialog::CreateAccountDialog(DatabaseManager* dbManager, QWidget* parent) :
     QDialog(parent),
-    ui(new Ui::CreateAccountDialog)
+    ui(new Ui::CreateAccountDialog),
+    m_dbManager(dbManager)
 {
     ui->setupUi(this);
 
@@ -22,13 +24,9 @@ void CreateAccountDialog::createAccount() {
         return;
     }
 
-    QSqlQuery query;
-    query.prepare("INSERT INTO user (username, password) VALUES (:username, :password)");
-    query.bindValue(":username", username);
-    query.bindValue(":password", password);
-
-    if (query.exec()) {
-        QMessageBox::information(this, "Sukces", "Konto zostało utworzone.");
+    accountmanager accountManager(m_dbManager);
+    if (accountManager.createAccount(username, password)) {
+        QMessageBox::information(this, "Sukces", "Konto zostało utworzone");
         accept();
     } else {
         QMessageBox::warning(this, "Błąd", "Nie udało się utworzyć konta.");

@@ -10,23 +10,28 @@ CONFIG += c++11
 
 SOURCES += \
     LoginAccountDialog.cpp \
+    accountmanager.cpp \
     createaccountDialog.cpp \
     databasemanager.cpp \
     main.cpp \
     mainwindow.cpp \
+    remindpassword.cpp \
     series.cpp
 
 HEADERS += \
     LoginAccountDialog.h \
+    accountmanager.h \
     createaccountDialog.h \
     databasemanager.h \
     mainwindow.h \
+    remindpassword.h \
     series.h
 
 FORMS += \
     createAccount.ui \
     loginAccount.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    remindpassword.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -2,6 +2,7 @@
 #define CREATEACCOUNTDIALOG_H
 
 #include <QDialog>
+#include "databasemanager.h"
 
 namespace Ui {
     class CreateAccountDialog;
@@ -12,13 +13,14 @@ class CreateAccountDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CreateAccountDialog(QWidget *parent = nullptr);
+    explicit CreateAccountDialog(DatabaseManager* dbManager, QWidget *parent = nullptr);
     ~CreateAccountDialog();
 
     void createAccount();
 
 public:
     Ui::CreateAccountDialog *ui;
+    DatabaseManager* m_dbManager;
 };
 
 #endif // CREATEACCOUNTDIALOG_H
