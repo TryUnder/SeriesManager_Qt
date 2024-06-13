@@ -10,7 +10,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , dbManager("D:\\P.R.I.V\\Uczelnia\\Semestr_VIII\\Programowanie_Wieloplatformowe\\Projekt_Seriale_Db.db")
+    , dbManager()
     , isLoggedIn(false)
     , accountManager(&dbManager)
 {
@@ -40,7 +40,7 @@ void MainWindow::createAccount() {
 void MainWindow::loginAccount() {
     LoginAccountDialog loginAccountDialog(&dbManager, this);
 
-    if (isLoggedIn) {
+    if (isLoggedIn || !dbManager.doesUserExist()) {
         return;
     }
 

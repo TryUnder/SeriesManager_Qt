@@ -6,12 +6,20 @@
 #include <QVariant>
 #include <QVector>
 #include "series.h"
+#include <QDebug>
+#include <QSqlError>
+#include <QPair>
+#include <QStandardPaths>
+#include <QDir>
 
 class DatabaseManager
 {
 public:
-    DatabaseManager(const QString& pathToDb);
+    DatabaseManager();
     ~DatabaseManager();
+
+    bool checkTables();
+    void createTables();
 
     bool addSeries(const Series& series);
     QVector<Series> getSeries() const;

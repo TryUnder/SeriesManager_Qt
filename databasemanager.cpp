@@ -1,17 +1,85 @@
 #include "databasemanager.h"
-#include <QDebug>
-#include <QSqlError>
-#include <QPair>
 
-DatabaseManager::DatabaseManager(const QString& pathToDb)
+
+DatabaseManager::DatabaseManager()
 {
+    QString dbPath;
+
+    if (QSysInfo::productType() == "windows") {
+        QString appDataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        QDir dir(appDataPath);
+
+        if (!dir.exists()) {
+            dir.mkpath(appDataPath);
+        }
+
+        dbPath = appDataPath + QDir::separator() + "Serialnik.db";
+    } else {
+        dbPath = QDir::tempPath() + QDir::separator() + "Serialnik.db";
+    }
+
     m_db = QSqlDatabase::addDatabase("QSQLITE");
-    m_db.setDatabaseName(pathToDb);
+    m_db.setDatabaseName(dbPath);
 
     if (!m_db.open()) {
         qDebug() << "Database connection error: " << m_db.lastError().text();
     } else {
         qDebug() << "Database connection succesfull.";
+    }
+
+    if (!checkTables()) {
+        createTables();
+    }
+}
+
+bool DatabaseManager::checkTables() {
+    QStringList requiredTables = {"user", "Series"};
+    QSqlQuery query;
+
+    foreach (const QString& tableName, requiredTables) {
+        query.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = :tableName");
+        query.bindValue(":tableName", tableName);
+
+        if (!query.exec() || !query.next()) {
+            qDebug() << "Tabela: " << tableName << " nie istnieje.";
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void DatabaseManager::createTables() {
+    QSqlQuery query;
+
+    QString createTableSeries = "CREATE TABLE IF NOT EXISTS Series ("
+                                "id	INTEGER NOT NULL,"
+                                "title	TEXT UNIQUE NOT NULL,"
+                                "genre	TEXT,"
+                                "starting_date TEXT,"
+                                "ending_date TEXT,"
+                                "episodes_watched INTEGER,"
+                                "url TEXT,"
+                                "category TEXT,"
+                                "grade INTEGER,"
+                                "PRIMARY KEY(id AUTOINCREMENT)"
+                            ")";
+
+    QString createTableUser = "CREATE TABLE IF NOT EXISTS user ("
+                "username TEXT NOT NULL,"
+                "password TEXT NOT NULL"
+            ")";
+
+    if (!query.exec(createTableSeries)) {
+        qDebug() << "Nie udało się utworzyć tabeli z serialami." << query.lastError().text();
+    } else {
+        qDebug() << "Pomyślnie utworzono tabelę z serialami.";
+    }
+
+    if (!query.exec(createTableUser)) {
+        qDebug() << "Nie udało się utworzyć tabeli użytkownika." << query.lastError().text();
+    } else {
+        qDebug() << "Pomyślnie utworzono tabelę użytkownika.";
     }
 }
 
@@ -41,7 +109,11 @@ bool DatabaseManager::loginAccount(const QString &username, const QString &passw
     query.bindValue(":username", username);
     query.bindValue(":password", password);
 
-    return query.exec();
+    if (query.exec() && query.next()) {
+        return query.value(0).toInt() > 0;
+    }
+
+    return false;
 }
 
 QPair<bool, QString> DatabaseManager::remindPassword(const QString &username) {
