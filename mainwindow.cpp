@@ -4,6 +4,8 @@
 #include "LoginAccountDialog.h"
 #include <QMessageBox>
 #include <QDebug>
+#include <QDate>
+#include <QPushButton>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -71,7 +73,10 @@ void MainWindow::addSeries() {
         return;
     }
 
-    Series series(-1, title, genres, startDate, endDate, episodesWatched, url, status, grade);
+    QString formattedStartDate = startDate.toString("dd-MM-yyyy");
+    QString formattedEndDate = endDate.toString("dd-MM-yyyy");
+
+    Series series(-1, title, genres, formattedStartDate, formattedEndDate, episodesWatched, url, status, grade);
 
     if (dbManager.addSeries(series)){
         QMessageBox::information(this, "Sukces", "Serial został dodany");
@@ -86,34 +91,89 @@ void MainWindow::loadSeries() {
         QMessageBox::warning(this, "Błąd", "Musisz być zalogowany, aby wyświetlić seriale.");
         return;
     }
-    qDebug() << "JEST 4 ";
-    ui->seriesTable->setRowCount(0); // Clear existing rows
-    ui->seriesTable->setColumnCount(9); // Including hidden ID column
-    ui->seriesTable->setHorizontalHeaderLabels({"Title", "Genre", "Starting Date", "Ending Date", "Episodes Watched", "URL", "Category", "Grade", "ID"});
+
+    ui->seriesTable->setRowCount(0);
+    ui->seriesTable->setColumnCount(10);
+    ui->seriesTable->setHorizontalHeaderLabels({"Tytuł", "Gatunki", "Rozpoczęto", "Zakończono", "Obejrzane Odcinki", "URL", "Status", "Ocena", "Zatwierdź Zmiany", "ID"});
     QVector<Series> seriesList = dbManager.getSeries();
     for (int i = 0; i < seriesList.size(); i++) {
         try {
             ui->seriesTable->insertRow(i);
             ui->seriesTable->setItem(i, 0, new QTableWidgetItem(seriesList.at(i).getTitle()));
             ui->seriesTable->setItem(i, 1, new QTableWidgetItem(seriesList.at(i).getGenre()));
-            ui->seriesTable->setItem(i, 2, new QTableWidgetItem(seriesList.at(i).getStartingDate().toString()));
-            ui->seriesTable->setItem(i, 3, new QTableWidgetItem(seriesList.at(i).getEndingDate().toString()));
+            ui->seriesTable->setItem(i, 2, new QTableWidgetItem(seriesList.at(i).getStartingDate()));
+            ui->seriesTable->setItem(i, 3, new QTableWidgetItem(seriesList.at(i).getEndingDate()));
             ui->seriesTable->setItem(i, 4, new QTableWidgetItem(seriesList.at(i).getEpisodesWatched()));
             ui->seriesTable->setItem(i, 5, new QTableWidgetItem(seriesList.at(i).getUrl()));
             ui->seriesTable->setItem(i, 6, new QTableWidgetItem(seriesList.at(i).getCategory()));
             ui->seriesTable->setItem(i, 7, new QTableWidgetItem(seriesList.at(i).getGrade()));
 
+            QPushButton* acceptButton = new QPushButton("Zatwierdź", this);
+            ui->seriesTable->setCellWidget(i, 8, acceptButton);
+            connect(acceptButton, &QPushButton::clicked, this, &MainWindow::acceptChanges);
+
             QTableWidgetItem* idItem = new QTableWidgetItem();
             idItem->setData(Qt::UserRole, seriesList.at(i).getId());
-            ui->seriesTable->setItem(i, 8, idItem);
-            ui->seriesTable->setColumnHidden(8, true);
+            ui->seriesTable->setItem(i, 9, idItem);
+            ui->seriesTable->setColumnHidden(9, true);
         }  catch (const std::exception& e) {
-            qDebug() << "Error, inserting row in table: " << e.what();
+            qDebug() << "Błąd podczas dodawania wiersza do tabeli: " << e.what();
         }
     }
-
-   connect(ui->seriesTable, &QTableWidget::itemChanged, this, &MainWindow::updateSeries);
 }
+
+void MainWindow::acceptChanges() {
+    QPushButton* button = qobject_cast<QPushButton*>(sender());
+    if (!button) {
+        return;
+    }
+
+    int row = ui->seriesTable->indexAt(button->pos()).row();
+    QTableWidgetItem* idItem = ui->seriesTable->item(row, 9);
+
+    if (!idItem) {
+        QMessageBox::warning(this, "Błąd", "Nie można znaleźć ID dla wybranej serii.");
+        return;
+    }
+
+    qDebug() << "row: " << row << " id: " << idItem->data(Qt::UserRole).toInt();
+
+    int id = idItem->data(Qt::UserRole).toInt();
+    QString newTitle = ui->seriesTable->item(row, 0)->text();
+    QString newGenre = ui->seriesTable->item(row, 1)->text();
+    QString newStartingDate = ui->seriesTable->item(row, 2)->text();
+    QString newEndingDate = ui->seriesTable->item(row, 3)->text();
+    int newEpisodesWatched = ui->seriesTable->item(row, 4)->text().toInt();
+    QString newUrl = ui->seriesTable->item(row, 5)->text();
+    QString newCategory = ui->seriesTable->item(row, 6)->text();
+    int newGrade = ui->seriesTable->item(row, 7)->text().toInt();
+
+    Series previousSelectedSerie = dbManager.getSeriesById(id);
+    Series updatedSerie(id, newTitle, newGenre, newStartingDate, newEndingDate, newEpisodesWatched, newUrl, newCategory, newGrade);
+
+    if (CheckSeriesEquality(previousSelectedSerie, updatedSerie) == true) {
+        QMessageBox::warning(this, "Błąd", "Nie dokonano żadnej zmiany");
+        return;
+    }
+
+    if (dbManager.updateSeries(updatedSerie)) {
+        QMessageBox::information(this, "Sukces", "Pomyślnie zaktualizowano serial");
+    } else {
+        QMessageBox::warning(this, "Błąd", "Nie udało się zaktualizować serialu");
+    }
+
+}
+
+bool MainWindow::CheckSeriesEquality(Series previousSeries, Series newSeries) {
+    return previousSeries.getTitle() == newSeries.getTitle() &&
+           previousSeries.getGenre() == newSeries.getGenre() &&
+           previousSeries.getStartingDate() == newSeries.getStartingDate() &&
+           previousSeries.getEndingDate() == newSeries.getEndingDate() &&
+           previousSeries.getUrl() == newSeries.getUrl() &&
+           previousSeries.getCategory() == newSeries.getCategory() &&
+           previousSeries.getGrade() == newSeries.getGrade();
+}
+
 
 void MainWindow::updateUIBasedOnLoginStatus() {
     ui->addButton->setEnabled(isLoggedIn);
@@ -133,7 +193,7 @@ void MainWindow::removeSeries() {
     }
 
     int row = selectedRows.at(0).row();
-    QTableWidgetItem *item = ui->seriesTable->item(row, 8);
+    QTableWidgetItem *item = ui->seriesTable->item(row, 9);
 
     if (!item) {
         QMessageBox::warning(this, "Błąd", "Nie można znaleźć wybranej serii.");
@@ -146,47 +206,6 @@ void MainWindow::removeSeries() {
         ui->seriesTable->removeRow(row);
     } else {
         QMessageBox::warning(this, "Błąd", "Nie udało się usunąć serialu");
-    }
-}
-
-void MainWindow::updateSeries(QTableWidgetItem* item) {
-    if (!item) {
-        return;
-    }
-
-    int row = item->row();
-
-    QTableWidgetItem* idItem = ui->seriesTable->item(row, 8);
-    int id = idItem->data(Qt::UserRole).toInt();
-
-    QString newTitle = ui->seriesTable->item(row, 0)->text();
-    QString newGenre = ui->seriesTable->item(row, 1)->text();
-    QDate newStartingDate = QDate::fromString(ui->seriesTable->item(row, 2)->text(), "yyyy-MM-dd");
-    QDate newEndingDate = QDate::fromString(ui->seriesTable->item(row, 3)->text(), "yyyy-MM-dd");
-    int newEpisodesWatched = ui->seriesTable->item(row, 4)->text().toInt();
-    QString newUrl = ui->seriesTable->item(row, 5)->text();
-    QString newCategory = ui->seriesTable->item(row, 6)->text();
-    int newGrade = ui->seriesTable->item(row, 7)->text().toInt();
-
-    Series existingSeries = dbManager.getSeriesById(id); // Implement this function to retrieve series by id
-
-        if (newTitle == existingSeries.getTitle() &&
-            newGenre == existingSeries.getGenre() &&
-            newStartingDate == existingSeries.getStartingDate() &&
-            newEndingDate == existingSeries.getEndingDate() &&
-            newEpisodesWatched == existingSeries.getEpisodesWatched().toInt() &&
-            newUrl == existingSeries.getUrl() &&
-            newCategory == existingSeries.getCategory() &&
-            newGrade == existingSeries.getGrade().toInt()) {
-            // No changes detected, return early
-            return;
-        }
-
-    Series updatedSeries(id, newTitle, newGenre, newStartingDate, newEndingDate, newEpisodesWatched, newUrl, newCategory, newGrade);
-    if (dbManager.updateSeries(updatedSeries)) {
-        QMessageBox::information(this, "Sukces", "Serial został zaktualizowany");
-    } else {
-        QMessageBox::warning(this, "Błąd", "Nie udało się zaktualizować serialu");
     }
 }
 

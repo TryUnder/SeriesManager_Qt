@@ -4,10 +4,6 @@
 
 DatabaseManager::DatabaseManager(const QString& pathToDb)
 {
-//    if (QSqlDatabase::contains("qt_sql_default_connection")) {
-//        QSqlDatabase::removeDatabase("qt_sql_default_connection");
-//    }
-
     m_db = QSqlDatabase::addDatabase("QSQLITE");
     m_db.setDatabaseName(pathToDb);
 
@@ -35,8 +31,8 @@ bool DatabaseManager::addSeries(const Series& series) {
                   "VALUES (:title, :genre, :starting_date, :ending_date, :episodes_watched, :url, :category, :grade)");
     query.bindValue(":title", series.getTitle());
     query.bindValue(":genre", series.getGenre());
-    query.bindValue(":starting_date", series.getStartingDate().toString("yyyy-MM-dd"));
-    query.bindValue(":ending_date", series.getEndingDate().toString("yyyy-MM-dd"));
+    query.bindValue(":starting_date", series.getStartingDate());
+    query.bindValue(":ending_date", series.getEndingDate());
     query.bindValue(":episodes_watched", series.getEpisodesWatched());
     query.bindValue(":url", series.getUrl());
     query.bindValue(":category", series.getCategory());
@@ -55,8 +51,8 @@ QVector<Series> DatabaseManager::getSeries() const {
             query.value("id").toInt(),
             query.value("title").toString(),
             query.value("genre").toString(),
-            query.value("starting_date").toDate(),
-            query.value("ending_date").toDate(),
+            query.value("starting_date").toString(),
+            query.value("ending_date").toString(),
             query.value("episodes_watched").toInt(),
             query.value("url").toString(),
             query.value("category").toString(),
@@ -69,22 +65,30 @@ QVector<Series> DatabaseManager::getSeries() const {
 }
 
 Series DatabaseManager::getSeriesById(int id) const {
-    QSqlQuery query("SELECT * FROM Series WHERE id = :id");
+    QSqlQuery query;
+    query.prepare("SELECT id, title, genre, starting_date, ending_date, episodes_watched, url, category, grade FROM Series WHERE id = :id");
     query.bindValue(":id", id);
 
-    if (query.exec()) {
-        Series series(
-                    query.value("id").toInt(),
-                    query.value("title").toString(),
-                    query.value("genre").toString(),
-                    query.value("starting_date").toDate(),
-                    query.value("ending_date").toDate(),
-                    query.value("episodes_watched").toInt(),
-                    query.value("url").toString(),
-                    query.value("category").toString(),
-                    query.value("grade").toInt()
-        );
+    if (!query.exec()) {
+        qDebug() << "Błąd wykonania zapytania: " << query.lastError().text();
+        throw std::runtime_error("Błąd przy pobieraniu danych serialu: " + query.lastError().text().toStdString());
+    }
+
+    if (query.next()) {
+        int id = query.value("id").toInt();
+        QString title = query.value("title").toString();
+        QString genre = query.value("genre").toString();
+        QString starting_date = query.value("starting_date").toString();
+        QString ending_date = query.value("ending_date").toString();
+        int episodesWatched = query.value("episodes_watched").toInt();
+        QString url = query.value("url").toString();
+        QString status = query.value("category").toString();
+        int grade = query.value("grade").toInt();
+
+        Series series(id, title, genre, starting_date, ending_date, episodesWatched, url, status, grade);
         return series;
+    } else {
+        throw std::runtime_error("Nie znaleziono serialu o podanym id");
     }
 }
 
@@ -102,8 +106,8 @@ bool DatabaseManager::updateSeries(const Series& series) {
                   "episodes_watched = :episodes_watched, url = :url, category = :category, grade = :grade WHERE id = :id");
     query.bindValue(":title", series.getTitle());
     query.bindValue(":genre", series.getGenre());
-    query.bindValue(":starting_date", series.getStartingDate().toString("yyyy-MM-dd"));
-    query.bindValue(":ending_date", series.getEndingDate().toString("yyyy-MM-dd"));
+    query.bindValue(":starting_date", series.getStartingDate());
+    query.bindValue(":ending_date", series.getEndingDate());
     query.bindValue(":episodes_watched", series.getEpisodesWatched());
     query.bindValue(":url", series.getUrl());
     query.bindValue(":category", series.getCategory());

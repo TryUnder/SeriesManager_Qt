@@ -16,6 +16,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    bool CheckSeriesEquality(Series previousSeries, Series newSeries);
 
 private:
     Ui::MainWindow *ui;
@@ -28,7 +29,7 @@ private slots:
     void loginAccount();
     void addSeries();
     void loadSeries();
-    void updateSeries(QTableWidgetItem* item);
     void removeSeries();
+    void acceptChanges();
 };
 #endif // MAINWINDOW_H
