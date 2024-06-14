@@ -35,5 +35,6 @@ private slots:
     void removeSeries();
     void acceptChanges();
     void remindPassword();
+    void logoutUser();
 };
 #endif // MAINWINDOW_H

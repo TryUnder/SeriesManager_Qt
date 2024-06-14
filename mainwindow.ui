@@ -303,7 +303,7 @@
     <addaction name="loginAccountAction"/>
     <addaction name="actionWyloguj"/>
     <addaction name="actionPrzypomnijHaslo"/>
-    <addaction name="actionUsu_konto"/>
+    <addaction name="actiondeleteAccount"/>
    </widget>
    <addaction name="menuOpcje"/>
   </widget>
@@ -338,7 +338,7 @@
     <string>Przypomnij hasło</string>
    </property>
   </action>
-  <action name="actionUsu_konto">
+  <action name="actiondeleteAccount">
    <property name="text">
     <string>Usuń konto</string>
    </property>

@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->addButton, &QPushButton::clicked, this, &MainWindow::addSeries);
     connect(ui->deleteButton, &QPushButton::clicked, this, &MainWindow::removeSeries);
     connect(ui->actionPrzypomnijHaslo, &QAction::triggered, this, &MainWindow::remindPassword);
+    connect(ui->actionWyloguj, &QAction::triggered, this, &MainWindow::logoutUser);
 
     ui->seriesTable->setSortingEnabled(true);
 
@@ -59,6 +60,18 @@ void MainWindow::remindPassword() {
     }
 
     remindPassword.exec();
+}
+
+void MainWindow::logoutUser() {
+    if (!isLoggedIn) {
+        QMessageBox::warning(this, "Błąd", "Nie jesteś zalogowany");
+        return;
+    }
+
+    QMessageBox::information(this, "Sukces", "Wylogowano pomyślnie.");
+
+    isLoggedIn = false;
+    updateUIBasedOnLoginStatus();
 }
 
 void MainWindow::addSeries() {
@@ -149,8 +162,6 @@ void MainWindow::acceptChanges() {
         return;
     }
 
-    qDebug() << "row: " << row << " id: " << idItem->data(Qt::UserRole).toInt();
-
     int id = idItem->data(Qt::UserRole).toInt();
     QString newTitle = ui->seriesTable->item(row, 0)->text();
     QString newGenre = ui->seriesTable->item(row, 1)->text();
@@ -195,6 +206,8 @@ void MainWindow::updateUIBasedOnLoginStatus() {
 
     if (isLoggedIn) {
         loadSeries();
+    } else {
+        ui->seriesTable->setRowCount(0);
     }
 }
 
