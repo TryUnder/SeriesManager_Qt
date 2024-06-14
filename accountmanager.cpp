@@ -16,3 +16,7 @@ bool accountmanager::loginAccount(const QString &username, const QString &passwo
 QPair<bool, QString> accountmanager::remindPassword(const QString& username) {
     return m_dbManager->remindPassword(username);
 }
+
+bool accountmanager::deleteAccount(const QString &username, const QString &password) {
+    return m_dbManager->deleteAccount(username, password);
+}

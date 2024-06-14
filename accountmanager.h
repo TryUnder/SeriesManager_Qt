@@ -13,6 +13,7 @@ public:
     bool createAccount(const QString& username, const QString& password);
     bool loginAccount(const QString& username, const QString& password);
     QPair<bool, QString> remindPassword(const QString& username);
+    bool deleteAccount(const QString& username, const QString& password);
 
 private:
     DatabaseManager* m_dbManager;

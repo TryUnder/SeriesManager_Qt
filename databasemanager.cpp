@@ -132,6 +132,47 @@ QPair<bool, QString> DatabaseManager::remindPassword(const QString &username) {
     return remindedPasswordPair;
 }
 
+bool DatabaseManager::deleteAccount(const QString &username, const QString &password) {
+    if (!m_db.transaction()) {
+        qDebug() << "Nie udało się rozpocząć transakcji.";
+        return false;
+    }
+
+    QSqlQuery deleteAccount, deleteSeries;
+
+    deleteAccount.prepare("DELETE FROM user WHERE username LIKE :username AND password LIKE :password");
+    deleteAccount.bindValue(":username", username);
+    deleteAccount.bindValue(":password", password);
+
+    if (!deleteAccount.exec()) {
+        qDebug() << "Nie udało się usunąć konta użytkownika." << deleteAccount.lastError().text();
+        m_db.rollback();
+        return false;
+    }
+
+    if (deleteAccount.numRowsAffected() == 0) {
+        qDebug() << "Nie znaleziono konta użytkownika do usunięcia.";
+        m_db.rollback();
+        return false;
+    }
+
+    deleteSeries.prepare("DELETE FROM Series");
+
+    if (!deleteSeries.exec()) {
+        qDebug() << "Nie udało się usunąć seriali." << deleteSeries.lastError().text();
+        m_db.rollback();
+        return false;
+    }
+
+    if (!m_db.commit()) {
+        qDebug() << "Nie udało się zatwierdzić transakcji.";
+        m_db.rollback();
+        return false;
+    }
+
+    return true;
+}
+
 bool DatabaseManager::addSeries(const Series& series) {
     QSqlQuery query;
     query.prepare("INSERT INTO Series (title, genre, starting_date, ending_date, episodes_watched, url, category, grade)"

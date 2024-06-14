@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->deleteButton, &QPushButton::clicked, this, &MainWindow::removeSeries);
     connect(ui->actionPrzypomnijHaslo, &QAction::triggered, this, &MainWindow::remindPassword);
     connect(ui->actionWyloguj, &QAction::triggered, this, &MainWindow::logoutUser);
+    connect(ui->actiondeleteAccount, &QAction::triggered, this, &MainWindow::deleteAccount);
+    connect(ui->actionMyAnimeListOpenDialog, &QAction::triggered, this, &MainWindow::openMyAnimeListImportDialog);
 
     ui->seriesTable->setSortingEnabled(true);
 
@@ -72,6 +74,24 @@ void MainWindow::logoutUser() {
 
     isLoggedIn = false;
     updateUIBasedOnLoginStatus();
+}
+
+void MainWindow::deleteAccount() {
+    DeleteAccount deleteAccount(&dbManager);
+
+    if (deleteAccount.exec() == QDialog::Accepted) {
+        isLoggedIn = false;
+        updateUIBasedOnLoginStatus();
+    }
+}
+
+void MainWindow::openMyAnimeListImportDialog() {
+    if (!isLoggedIn) {
+        QMessageBox::warning(this, "Błąd", "Nie jesteś zalogowany");
+        return;
+    }
+    MyAnimeListDialog myAnimeListImportDialog(&dbManager);
+    myAnimeListImportDialog.exec();
 }
 
 void MainWindow::addSeries() {

@@ -297,7 +297,7 @@
    </property>
    <widget class="QMenu" name="menuOpcje">
     <property name="title">
-     <string>Opcje</string>
+     <string>Opcje Konta</string>
     </property>
     <addaction name="createAccountAction"/>
     <addaction name="loginAccountAction"/>
@@ -305,7 +305,14 @@
     <addaction name="actionPrzypomnijHaslo"/>
     <addaction name="actiondeleteAccount"/>
    </widget>
+   <widget class="QMenu" name="menuOpcje_Importu">
+    <property name="title">
+     <string>Opcje Importu</string>
+    </property>
+    <addaction name="actionMyAnimeListOpenDialog"/>
+   </widget>
    <addaction name="menuOpcje"/>
+   <addaction name="menuOpcje_Importu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="createAccountAction_3">
@@ -341,6 +348,11 @@
   <action name="actiondeleteAccount">
    <property name="text">
     <string>Usuń konto</string>
+   </property>
+  </action>
+  <action name="actionMyAnimeListOpenDialog">
+   <property name="text">
+    <string>MyAnimeList</string>
    </property>
   </action>
  </widget>

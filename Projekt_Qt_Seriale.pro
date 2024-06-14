@@ -13,8 +13,10 @@ SOURCES += \
     accountmanager.cpp \
     createaccountDialog.cpp \
     databasemanager.cpp \
+    deleteaccount.cpp \
     main.cpp \
     mainwindow.cpp \
+    myanimelistdialog.cpp \
     remindpassword.cpp \
     series.cpp
 
@@ -23,14 +25,18 @@ HEADERS += \
     accountmanager.h \
     createaccountDialog.h \
     databasemanager.h \
+    deleteaccount.h \
     mainwindow.h \
+    myanimelistdialog.h \
     remindpassword.h \
     series.h
 
 FORMS += \
     createAccount.ui \
+    deleteaccount.ui \
     loginAccount.ui \
     mainwindow.ui \
+    myanimelistdialog.ui \
     remindpassword.ui
 
 # Default rules for deployment.

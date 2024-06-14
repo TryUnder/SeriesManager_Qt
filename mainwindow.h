@@ -6,6 +6,8 @@
 #include "databasemanager.h"
 #include "accountmanager.h"
 #include "remindpassword.h"
+#include "deleteaccount.h"
+#include "myanimelistdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -36,5 +38,7 @@ private slots:
     void acceptChanges();
     void remindPassword();
     void logoutUser();
+    void deleteAccount();
+    void openMyAnimeListImportDialog();
 };
 #endif // MAINWINDOW_H
