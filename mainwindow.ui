@@ -171,12 +171,22 @@
         </item>
         <item>
          <property name="text">
-          <string>Oczekujące</string>
+          <string>Wstrzymane</string>
          </property>
         </item>
         <item>
          <property name="text">
           <string>Zakończone</string>
+         </property>
+		</item>
+		 <item>
+		 <property name="text">
+          <string>Porzucone</string>
+         </property>
+		 </item>
+		 <item>
+		 <property name="text">
+          <string>Planowane</string>
          </property>
         </item>
        </widget>

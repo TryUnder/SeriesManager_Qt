@@ -40,5 +40,6 @@ private slots:
     void logoutUser();
     void deleteAccount();
     void openMyAnimeListImportDialog();
+    void removePlaceholderText(int row, int column);
 };
 #endif // MAINWINDOW_H

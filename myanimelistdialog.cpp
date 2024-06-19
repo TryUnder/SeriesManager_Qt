@@ -37,6 +37,7 @@ void MyAnimeListDialog::onImportButtonClicked() {
 
     if (importFromXML()) {
         QMessageBox::information(this, "Sukces", "Import zakończony sukcesem");
+        emit importSuccesfull();
     } else {
         QMessageBox::critical(this, "Błąd", "Wystąpił błąd podczas importu pliku XML.");
     }
@@ -57,15 +58,44 @@ bool MyAnimeListDialog::importFromXML() {
 
         if (token == QXmlStreamReader::StartElement) {
             if (xml.name() == "anime") {
+                Series series;
                 while(!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "anime")) {
                     if (xml.tokenType() == QXmlStreamReader::StartElement) {
                         if (xml.name() == "series_title") {
-                            qDebug() << xml.readElementText();
+                            series.setTitle(xml.readElementText());
+                        }
+
+                        if (xml.name() == "my_watched_episodes") {
+                            series.setEpisodesWatched(xml.readElementText().toInt());
+                        }
+
+                        if (xml.name() == "my_start_date") {
+                            series.setStartingDate(xml.readElementText());
+                        }
+
+                        if (xml.name() == "my_finish_date") {
+                            series.setEndingDate(xml.readElementText());
+                        }
+
+                        if (xml.name() == "my_score") {
+                            series.setGrade(xml.readElementText().toInt());
+                        }
+
+                        if (xml.name() == "my_status") {
+                            QString category = Series::categoryToPolish(Series::categoryFromEnglish(xml.readElementText()));
+                            series.setCategory(category);
                         }
                     }
                     xml.readNext();
                 }
+                seriesList.append(series);
             }
+        }
+    }
+
+    if (seriesList.size() > 0) {
+        for (const Series& series : seriesList) {
+            m_dbManager->addSeries(series);
         }
     }
 
@@ -73,6 +103,9 @@ bool MyAnimeListDialog::importFromXML() {
         qDebug() << "Błąd przy parsowaniu XML: " << xml.errorString();
         return false;
     }
+
+    close();
+    return true;
 }
 
 MyAnimeListDialog::~MyAnimeListDialog()

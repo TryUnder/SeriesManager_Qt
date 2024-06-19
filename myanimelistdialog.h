@@ -27,6 +27,9 @@ public:
     void onImportButtonClicked();
     bool importFromXML();
 
+signals:
+    void importSuccesfull();
+
 private:
     Ui::MyAnimeListDialog *ui;
     QString m_myAnimeListXmlPath;

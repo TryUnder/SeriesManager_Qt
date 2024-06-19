@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QDate>
+#include <QMap>
 
 class Series
 {
@@ -22,6 +23,17 @@ public:
            int episodesWatched, QString url, QString category, int grade);
     Series();
 
+    enum class Category {
+        Watching,
+        Completed,
+        Dropped,
+        OnHold,
+        PlanToWatch
+    };
+
+    static QString categoryToPolish(Category category);
+    static Category categoryFromEnglish(const QString& category);
+
     int getId() const;
     QString getTitle() const;
     QString getGenre() const;
@@ -31,6 +43,15 @@ public:
     QString getUrl() const;
     QString getCategory() const;
     QString getGrade() const;
+
+    void setTitle(QString title);
+    void setStartingDate(QString startingDate);
+    void setEndingDate(QString endingDate);
+    void setGrade(int grade);
+    void setCategory(QString category);
+    void setEpisodesWatched(int episodesWatched);
+
+    static bool isDefaultDate(const QString& date);
 };
 
 #endif // SERIES_H

@@ -91,6 +91,7 @@ void MainWindow::openMyAnimeListImportDialog() {
         return;
     }
     MyAnimeListDialog myAnimeListImportDialog(&dbManager);
+    connect(&myAnimeListImportDialog, &MyAnimeListDialog::importSuccesfull, this, &MainWindow::loadSeries);
     myAnimeListImportDialog.exec();
 }
 
@@ -147,8 +148,28 @@ void MainWindow::loadSeries() {
             ui->seriesTable->insertRow(i);
             ui->seriesTable->setItem(i, 0, new QTableWidgetItem(seriesList.at(i).getTitle()));
             ui->seriesTable->setItem(i, 1, new QTableWidgetItem(seriesList.at(i).getGenre()));
-            ui->seriesTable->setItem(i, 2, new QTableWidgetItem(seriesList.at(i).getStartingDate()));
-            ui->seriesTable->setItem(i, 3, new QTableWidgetItem(seriesList.at(i).getEndingDate()));
+
+            QString startDate = seriesList.at(i).getStartingDate();
+            QTableWidgetItem* startItem = new QTableWidgetItem(startDate);
+            if (Series::isDefaultDate(startDate)) {
+                startItem->setText("Brak");
+                startItem->setForeground(Qt::gray);
+                startItem->setData(Qt::UserRole, true);
+            } else {
+                startItem->setData(Qt::UserRole, false);
+            }
+            ui->seriesTable->setItem(i, 2, startItem);
+
+            QString endDate = seriesList.at(i).getEndingDate();
+            QTableWidgetItem* endItem = new QTableWidgetItem(endDate);
+            if (Series::isDefaultDate(endDate)) {
+                endItem->setText("Brak");
+                endItem->setForeground(Qt::gray);
+                endItem->setData(Qt::UserRole, true);
+            } else {
+                endItem->setData(Qt::UserRole, false);
+            }
+            ui->seriesTable->setItem(i, 3, endItem);
             ui->seriesTable->setItem(i, 4, new QTableWidgetItem(seriesList.at(i).getEpisodesWatched()));
             ui->seriesTable->setItem(i, 5, new QTableWidgetItem(seriesList.at(i).getUrl()));
             ui->seriesTable->setItem(i, 6, new QTableWidgetItem(seriesList.at(i).getCategory()));
@@ -162,6 +183,8 @@ void MainWindow::loadSeries() {
             idItem->setData(Qt::UserRole, seriesList.at(i).getId());
             ui->seriesTable->setItem(i, 9, idItem);
             ui->seriesTable->setColumnHidden(9, true);
+
+            connect(ui->seriesTable, &QTableWidget::cellDoubleClicked, this, &MainWindow::removePlaceholderText);
         }  catch (const std::exception& e) {
             qDebug() << "Błąd podczas dodawania wiersza do tabeli: " << e.what();
         }
@@ -252,6 +275,21 @@ void MainWindow::removeSeries() {
         ui->seriesTable->removeRow(row);
     } else {
         QMessageBox::warning(this, "Błąd", "Nie udało się usunąć serialu");
+    }
+}
+
+void MainWindow::removePlaceholderText(int row, int column) {
+    QTableWidgetItem* item = ui->seriesTable->item(row, column);
+    if (!item) {
+        return;
+    }
+
+    bool isPlaceholder = item->data(Qt::UserRole).toBool();
+
+    if (isPlaceholder) {
+        item->setText("");
+        item->setForeground(Qt::black);
+        item->setData(Qt::UserRole, false);
     }
 }
 
