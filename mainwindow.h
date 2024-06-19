@@ -34,6 +34,7 @@ private slots:
     void loginAccount();
     void addSeries();
     void loadSeries();
+    void loadSeries(QVector<Series> seriesList);
     void removeSeries();
     void acceptChanges();
     void remindPassword();
@@ -41,5 +42,11 @@ private slots:
     void deleteAccount();
     void openMyAnimeListImportDialog();
     void removePlaceholderText(int row, int column);
+
+    void searchSeriesByTitle();
+    void searchSeriesByGenre();
+    void searchSeriesByCategory();
+    void searchSeriesByGrade();
+    void loadAllSeries();
 };
 #endif // MAINWINDOW_H

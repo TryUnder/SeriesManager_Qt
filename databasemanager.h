@@ -27,6 +27,11 @@ public:
     bool updateSeries(const Series& series);
     bool deleteSeries(int id);
 
+    QPair<bool, QVector<Series>> getSeriesByTitle(const QString& title);
+    QPair<bool, QVector<Series>> getSeriesByGenre(const QString& genre);
+    QPair<bool, QVector<Series>> getSeriesByCategory(const QString& category);
+    QPair<bool, QVector<Series>> getSeriesByGrade(const int& grade);
+
     bool doesUserExist();
     bool createAccount(const QString& username, const QString& password);
     bool loginAccount(const QString& username, const QString& password);

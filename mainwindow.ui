@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>940</width>
+    <width>1024</width>
     <height>600</height>
    </rect>
   </property>
@@ -139,30 +139,48 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QSpinBox" name="episodesWatchedInput"/>
+       <widget class="QSpinBox" name="episodesWatchedInput">
+        <property name="maximum">
+         <number>2000</number>
+        </property>
+       </widget>
       </item>
       <item row="5" column="0">
+       <widget class="QLabel" name="maxEpisodesLabel">
+        <property name="text">
+         <string>Ilość odcinków</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QSpinBox" name="allEpisodes">
+        <property name="maximum">
+         <number>2000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
        <widget class="QLabel" name="urlLabel">
         <property name="text">
          <string>URL</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="6" column="1">
        <widget class="QLineEdit" name="urlInput">
         <property name="placeholderText">
          <string>URL</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
+      <item row="7" column="0">
        <widget class="QLabel" name="statusLabel">
         <property name="text">
          <string>Status</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="7" column="1">
        <widget class="QComboBox" name="statusInput">
         <item>
          <property name="text">
@@ -178,27 +196,27 @@
          <property name="text">
           <string>Zakończone</string>
          </property>
-		</item>
-		 <item>
-		 <property name="text">
+        </item>
+        <item>
+         <property name="text">
           <string>Porzucone</string>
          </property>
-		 </item>
-		 <item>
-		 <property name="text">
+        </item>
+        <item>
+         <property name="text">
           <string>Planowane</string>
          </property>
         </item>
        </widget>
       </item>
-      <item row="7" column="0">
+      <item row="8" column="0">
        <widget class="QLabel" name="ratingLabel">
         <property name="text">
          <string>Ocena (1-10)</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
+      <item row="8" column="1">
        <widget class="QSlider" name="ratingSlider">
         <property name="minimumSize">
          <size>
@@ -274,6 +292,11 @@
       </column>
       <column>
        <property name="text">
+        <string>Ilość odcinków</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
         <string>URL</string>
        </property>
       </column>
@@ -301,7 +324,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>940</width>
+     <width>1024</width>
      <height>20</height>
     </rect>
    </property>
@@ -321,7 +344,18 @@
     </property>
     <addaction name="actionMyAnimeListOpenDialog"/>
    </widget>
+   <widget class="QMenu" name="menuWyszukaj_Seriale">
+    <property name="title">
+     <string>Wyszukaj Seriale</string>
+    </property>
+    <addaction name="actionPo_tytule"/>
+    <addaction name="actionPo_gatunku"/>
+    <addaction name="actionPo_ocenie"/>
+    <addaction name="actionPo_kategorii"/>
+    <addaction name="actionShowAll"/>
+   </widget>
    <addaction name="menuOpcje"/>
+   <addaction name="menuWyszukaj_Seriale"/>
    <addaction name="menuOpcje_Importu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -363,6 +397,31 @@
   <action name="actionMyAnimeListOpenDialog">
    <property name="text">
     <string>MyAnimeList</string>
+   </property>
+  </action>
+  <action name="actionPo_tytule">
+   <property name="text">
+    <string>Po tytule</string>
+   </property>
+  </action>
+  <action name="actionPo_gatunku">
+   <property name="text">
+    <string>Po gatunku</string>
+   </property>
+  </action>
+  <action name="actionPo_ocenie">
+   <property name="text">
+    <string>Po ocenie</string>
+   </property>
+  </action>
+  <action name="actionPo_kategorii">
+   <property name="text">
+    <string>Po kategorii</string>
+   </property>
+  </action>
+  <action name="actionShowAll">
+   <property name="text">
+    <string>Wyświetl wszystkie</string>
    </property>
   </action>
  </widget>

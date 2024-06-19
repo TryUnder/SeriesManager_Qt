@@ -26,6 +26,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actiondeleteAccount, &QAction::triggered, this, &MainWindow::deleteAccount);
     connect(ui->actionMyAnimeListOpenDialog, &QAction::triggered, this, &MainWindow::openMyAnimeListImportDialog);
 
+    connect(ui->actionPo_tytule, &QAction::triggered, this, &MainWindow::searchSeriesByTitle);
+    connect(ui->actionPo_gatunku, &QAction::triggered, this, &MainWindow::searchSeriesByGenre);
+    connect(ui->actionPo_kategorii, &QAction::triggered, this, &MainWindow::searchSeriesByCategory);
+    connect(ui->actionPo_ocenie, &QAction::triggered, this, &MainWindow::searchSeriesByGrade);
+    connect(ui->actionShowAll, &QAction::triggered, this, &MainWindow::loadAllSeries);
+
     ui->seriesTable->setSortingEnabled(true);
 
     updateUIBasedOnLoginStatus();
@@ -91,7 +97,8 @@ void MainWindow::openMyAnimeListImportDialog() {
         return;
     }
     MyAnimeListDialog myAnimeListImportDialog(&dbManager);
-    connect(&myAnimeListImportDialog, &MyAnimeListDialog::importSuccesfull, this, &MainWindow::loadSeries);
+    connect(&myAnimeListImportDialog, &MyAnimeListDialog::importSuccesfull, this, static_cast<void (MainWindow::*)()>(&MainWindow::loadSeries));
+
     myAnimeListImportDialog.exec();
 }
 
@@ -111,6 +118,7 @@ void MainWindow::addSeries() {
     QDate startDate = ui->startDateInput->date();
     QDate endDate = ui->endDateInput->date();
     int episodesWatched = ui->episodesWatchedInput->value();
+    int allEpisodes = ui->allEpisodes->value();
     QString url = ui->urlInput->text();
     QString status = ui->statusInput->currentText();
     int grade = ui->ratingSlider->value();
@@ -123,7 +131,7 @@ void MainWindow::addSeries() {
     QString formattedStartDate = startDate.toString("dd-MM-yyyy");
     QString formattedEndDate = endDate.toString("dd-MM-yyyy");
 
-    Series series(-1, title, genres, formattedStartDate, formattedEndDate, episodesWatched, url, status, grade);
+    Series series(-1, title, genres, formattedStartDate, formattedEndDate, episodesWatched, allEpisodes, url, status, grade);
 
     if (dbManager.addSeries(series)){
         QMessageBox::information(this, "Sukces", "Serial został dodany");
@@ -140,8 +148,8 @@ void MainWindow::loadSeries() {
     }
 
     ui->seriesTable->setRowCount(0);
-    ui->seriesTable->setColumnCount(10);
-    ui->seriesTable->setHorizontalHeaderLabels({"Tytuł", "Gatunki", "Rozpoczęto", "Zakończono", "Obejrzane Odcinki", "URL", "Status", "Ocena", "Zatwierdź Zmiany", "ID"});
+    ui->seriesTable->setColumnCount(11);
+    ui->seriesTable->setHorizontalHeaderLabels({"Tytuł", "Gatunki", "Rozpoczęto", "Zakończono", "Obejrzane Odcinki", "Wszystkie Odcinki", "URL", "Status", "Ocena", "Zatwierdź Zmiany", "ID"});
     QVector<Series> seriesList = dbManager.getSeries();
     for (int i = 0; i < seriesList.size(); i++) {
         try {
@@ -171,18 +179,77 @@ void MainWindow::loadSeries() {
             }
             ui->seriesTable->setItem(i, 3, endItem);
             ui->seriesTable->setItem(i, 4, new QTableWidgetItem(seriesList.at(i).getEpisodesWatched()));
-            ui->seriesTable->setItem(i, 5, new QTableWidgetItem(seriesList.at(i).getUrl()));
-            ui->seriesTable->setItem(i, 6, new QTableWidgetItem(seriesList.at(i).getCategory()));
-            ui->seriesTable->setItem(i, 7, new QTableWidgetItem(seriesList.at(i).getGrade()));
+            ui->seriesTable->setItem(i, 5, new QTableWidgetItem(seriesList.at(i).getAllEpisodes()));
+            ui->seriesTable->setItem(i, 6, new QTableWidgetItem(seriesList.at(i).getUrl()));
+            ui->seriesTable->setItem(i, 7, new QTableWidgetItem(seriesList.at(i).getCategory()));
+            ui->seriesTable->setItem(i, 8, new QTableWidgetItem(seriesList.at(i).getGrade()));
 
             QPushButton* acceptButton = new QPushButton("Zatwierdź", this);
-            ui->seriesTable->setCellWidget(i, 8, acceptButton);
+            ui->seriesTable->setCellWidget(i, 9, acceptButton);
             connect(acceptButton, &QPushButton::clicked, this, &MainWindow::acceptChanges);
 
             QTableWidgetItem* idItem = new QTableWidgetItem();
             idItem->setData(Qt::UserRole, seriesList.at(i).getId());
-            ui->seriesTable->setItem(i, 9, idItem);
-            ui->seriesTable->setColumnHidden(9, true);
+            ui->seriesTable->setItem(i, 10, idItem);
+            ui->seriesTable->setColumnHidden(10, true);
+
+            connect(ui->seriesTable, &QTableWidget::cellDoubleClicked, this, &MainWindow::removePlaceholderText);
+        }  catch (const std::exception& e) {
+            qDebug() << "Błąd podczas dodawania wiersza do tabeli: " << e.what();
+        }
+    }
+}
+
+void MainWindow::loadSeries(QVector<Series> seriesList) {
+    if (!isLoggedIn) {
+        QMessageBox::warning(this, "Błąd", "Musisz być zalogowany, aby wyświetlić seriale.");
+        return;
+    }
+
+    ui->seriesTable->setRowCount(0);
+    ui->seriesTable->setColumnCount(11);
+    ui->seriesTable->setHorizontalHeaderLabels({"Tytuł", "Gatunki", "Rozpoczęto", "Zakończono", "Obejrzane Odcinki", "Wszystkie Odcinki", "URL", "Status", "Ocena", "Zatwierdź Zmiany", "ID"});
+    for (int i = 0; i < seriesList.size(); i++) {
+        try {
+            ui->seriesTable->insertRow(i);
+            ui->seriesTable->setItem(i, 0, new QTableWidgetItem(seriesList.at(i).getTitle()));
+            ui->seriesTable->setItem(i, 1, new QTableWidgetItem(seriesList.at(i).getGenre()));
+
+            QString startDate = seriesList.at(i).getStartingDate();
+            QTableWidgetItem* startItem = new QTableWidgetItem(startDate);
+            if (Series::isDefaultDate(startDate)) {
+                startItem->setText("Brak");
+                startItem->setForeground(Qt::gray);
+                startItem->setData(Qt::UserRole, true);
+            } else {
+                startItem->setData(Qt::UserRole, false);
+            }
+            ui->seriesTable->setItem(i, 2, startItem);
+
+            QString endDate = seriesList.at(i).getEndingDate();
+            QTableWidgetItem* endItem = new QTableWidgetItem(endDate);
+            if (Series::isDefaultDate(endDate)) {
+                endItem->setText("Brak");
+                endItem->setForeground(Qt::gray);
+                endItem->setData(Qt::UserRole, true);
+            } else {
+                endItem->setData(Qt::UserRole, false);
+            }
+            ui->seriesTable->setItem(i, 3, endItem);
+            ui->seriesTable->setItem(i, 4, new QTableWidgetItem(seriesList.at(i).getEpisodesWatched()));
+            ui->seriesTable->setItem(i, 5, new QTableWidgetItem(seriesList.at(i).getAllEpisodes()));
+            ui->seriesTable->setItem(i, 6, new QTableWidgetItem(seriesList.at(i).getUrl()));
+            ui->seriesTable->setItem(i, 7, new QTableWidgetItem(seriesList.at(i).getCategory()));
+            ui->seriesTable->setItem(i, 8, new QTableWidgetItem(seriesList.at(i).getGrade()));
+
+            QPushButton* acceptButton = new QPushButton("Zatwierdź", this);
+            ui->seriesTable->setCellWidget(i, 9, acceptButton);
+            connect(acceptButton, &QPushButton::clicked, this, &MainWindow::acceptChanges);
+
+            QTableWidgetItem* idItem = new QTableWidgetItem();
+            idItem->setData(Qt::UserRole, seriesList.at(i).getId());
+            ui->seriesTable->setItem(i, 10, idItem);
+            ui->seriesTable->setColumnHidden(10, true);
 
             connect(ui->seriesTable, &QTableWidget::cellDoubleClicked, this, &MainWindow::removePlaceholderText);
         }  catch (const std::exception& e) {
@@ -198,7 +265,7 @@ void MainWindow::acceptChanges() {
     }
 
     int row = ui->seriesTable->indexAt(button->pos()).row();
-    QTableWidgetItem* idItem = ui->seriesTable->item(row, 9);
+    QTableWidgetItem* idItem = ui->seriesTable->item(row, 10);
 
     if (!idItem) {
         QMessageBox::warning(this, "Błąd", "Nie można znaleźć ID dla wybranej serii.");
@@ -211,12 +278,13 @@ void MainWindow::acceptChanges() {
     QString newStartingDate = ui->seriesTable->item(row, 2)->text();
     QString newEndingDate = ui->seriesTable->item(row, 3)->text();
     int newEpisodesWatched = ui->seriesTable->item(row, 4)->text().toInt();
-    QString newUrl = ui->seriesTable->item(row, 5)->text();
-    QString newCategory = ui->seriesTable->item(row, 6)->text();
-    int newGrade = ui->seriesTable->item(row, 7)->text().toInt();
+    int newAllEpisodes = ui->seriesTable->item(row, 5)->text().toInt();
+    QString newUrl = ui->seriesTable->item(row, 6)->text();
+    QString newCategory = ui->seriesTable->item(row, 7)->text();
+    int newGrade = ui->seriesTable->item(row, 8)->text().toInt();
 
     Series previousSelectedSerie = dbManager.getSeriesById(id);
-    Series updatedSerie(id, newTitle, newGenre, newStartingDate, newEndingDate, newEpisodesWatched, newUrl, newCategory, newGrade);
+    Series updatedSerie(id, newTitle, newGenre, newStartingDate, newEndingDate, newEpisodesWatched, newAllEpisodes, newUrl, newCategory, newGrade);
 
     if (CheckSeriesEquality(previousSelectedSerie, updatedSerie) == true) {
         QMessageBox::warning(this, "Błąd", "Nie dokonano żadnej zmiany");
@@ -236,6 +304,8 @@ bool MainWindow::CheckSeriesEquality(Series previousSeries, Series newSeries) {
            previousSeries.getGenre() == newSeries.getGenre() &&
            previousSeries.getStartingDate() == newSeries.getStartingDate() &&
            previousSeries.getEndingDate() == newSeries.getEndingDate() &&
+           previousSeries.getEpisodesWatched() == newSeries.getEpisodesWatched() &&
+           previousSeries.getAllEpisodes() == newSeries.getAllEpisodes() &&
            previousSeries.getUrl() == newSeries.getUrl() &&
            previousSeries.getCategory() == newSeries.getCategory() &&
            previousSeries.getGrade() == newSeries.getGrade();
@@ -262,7 +332,7 @@ void MainWindow::removeSeries() {
     }
 
     int row = selectedRows.at(0).row();
-    QTableWidgetItem *item = ui->seriesTable->item(row, 9);
+    QTableWidgetItem *item = ui->seriesTable->item(row, 10);
 
     if (!item) {
         QMessageBox::warning(this, "Błąd", "Nie można znaleźć wybranej serii.");
@@ -291,6 +361,176 @@ void MainWindow::removePlaceholderText(int row, int column) {
         item->setForeground(Qt::black);
         item->setData(Qt::UserRole, false);
     }
+}
+
+void MainWindow::searchSeriesByTitle() {
+    if (!isLoggedIn) {
+        QMessageBox::warning(this, "Błąd", "Musisz być zalogowany");
+        return;
+    }
+
+    QDialog* searchDialog = new QDialog(this);
+    searchDialog->resize(300, 100);
+    searchDialog->setWindowTitle("Wyszukiwanie seriali po tytule");
+
+    QLabel* titleInfo = new QLabel(this);
+    titleInfo->setText("Wprowadź tytuł");
+    QLineEdit* titleLineEdit = new QLineEdit(searchDialog);
+    QPushButton* searchButton = new QPushButton("Szukaj", searchDialog);
+
+    QVBoxLayout* layout = new QVBoxLayout(searchDialog);
+    layout->addWidget(titleInfo);
+    layout->addWidget(titleLineEdit);
+    layout->addWidget(searchButton);
+
+    connect(searchButton, &QPushButton::clicked, [=]() {
+       QString title = titleLineEdit->text().trimmed();
+       QPair<bool, QVector<Series>> result = dbManager.getSeriesByTitle(title);
+
+       if (result.first) {
+           loadSeries(result.second);
+       } else {
+           QMessageBox::warning(this, "Błąd", "Nie udało się wyszukać seriali");
+       }
+
+       searchDialog->close();
+    });
+
+    searchDialog->exec();
+}
+
+void MainWindow::searchSeriesByGenre() {
+    if (!isLoggedIn) {
+        QMessageBox::warning(this, "Błąd", "Musisz być zalogowany");
+        return;
+    }
+
+    QDialog* searchDialog = new QDialog(this);
+    searchDialog->resize(300, 150);
+    searchDialog->setWindowTitle("Wyszukiwanie seriali po gatunku");
+
+    QComboBox* genreComboBox = new QComboBox(searchDialog);
+    genreComboBox->addItem("Akcja");
+    genreComboBox->addItem("Komedia");
+    genreComboBox->addItem("Dramat");
+    genreComboBox->addItem("Fantasy");
+    genreComboBox->addItem("Romans");
+    genreComboBox->addItem("Thriller");
+    genreComboBox->addItem("Horror");
+    genreComboBox->addItem("Przygodowe");
+    genreComboBox->addItem("Sci-Fi");
+    QPushButton* searchButton = new QPushButton("Szukaj", searchDialog);
+
+    QVBoxLayout* layout = new QVBoxLayout(searchDialog);
+    layout->addWidget(new QLabel("Wybierz gatunek", searchDialog));
+    layout->addWidget(genreComboBox);
+    layout->addWidget(searchButton);
+
+    connect(searchButton, &QPushButton::clicked, [=]() {
+       QString selectedGenre = genreComboBox->currentText();
+       QPair<bool, QVector<Series>> result = dbManager.getSeriesByGenre(selectedGenre);
+
+       if (result.first) {
+           loadSeries(result.second);
+       } else {
+           QMessageBox::warning(this, "Błąd", "Nie udało się wyszukać seriali");
+       }
+
+       searchDialog->close();
+    });
+
+    searchDialog->exec();
+}
+
+void MainWindow::searchSeriesByCategory() {
+    if (!isLoggedIn) {
+        QMessageBox::warning(this, "Błąd", "Musisz być zalogowany");
+        return;
+    }
+
+    QDialog* searchDialog = new QDialog(this);
+    searchDialog->resize(300, 150);
+    searchDialog->setWindowTitle("Wyszukiwanie seriali po statusie");
+
+    QComboBox* statusComboBox = new QComboBox(searchDialog);
+    statusComboBox->addItem("Oglądane");
+    statusComboBox->addItem("Wstrzymane");
+    statusComboBox->addItem("Zakończone");
+    statusComboBox->addItem("Porzucone");
+    statusComboBox->addItem("Planowane");
+    QPushButton* searchButton = new QPushButton("Szukaj", searchDialog);
+
+    QVBoxLayout* layout = new QVBoxLayout(searchDialog);
+    layout->addWidget(new QLabel("Wybierz status", searchDialog));
+    layout->addWidget(statusComboBox);
+    layout->addWidget(searchButton);
+
+    connect(searchButton, &QPushButton::clicked, [=]() {
+       QString selectedStatus = statusComboBox->currentText();
+       QPair<bool, QVector<Series>> result = dbManager.getSeriesByCategory(selectedStatus);
+
+       if (result.first) {
+           loadSeries(result.second);
+       } else {
+           QMessageBox::warning(this, "Błąd", "Nie udało się wyszukać seriali");
+       }
+
+       searchDialog->close();
+    });
+
+    searchDialog->exec();
+}
+
+void MainWindow::searchSeriesByGrade() {
+    if (!isLoggedIn) {
+        QMessageBox::warning(this, "Błąd", "Musisz być zalogowany");
+        return;
+    }
+
+    QDialog* searchDialog = new QDialog(this);
+    searchDialog->resize(300, 150);
+    searchDialog->setWindowTitle("Wyszukiwanie seriali po ocenie");
+
+    QComboBox* gradeComboBox = new QComboBox(searchDialog);
+    gradeComboBox->addItem("1");
+    gradeComboBox->addItem("2");
+    gradeComboBox->addItem("3");
+    gradeComboBox->addItem("4");
+    gradeComboBox->addItem("5");
+    gradeComboBox->addItem("6");
+    gradeComboBox->addItem("7");
+    gradeComboBox->addItem("8");
+    gradeComboBox->addItem("9");
+    gradeComboBox->addItem("10");
+    QPushButton* searchButton = new QPushButton("Szukaj", searchDialog);
+
+    QVBoxLayout* layout = new QVBoxLayout(searchDialog);
+    layout->addWidget(new QLabel("Wybierz ocenę", searchDialog));
+    layout->addWidget(gradeComboBox);
+    layout->addWidget(searchButton);
+
+    connect(searchButton, &QPushButton::clicked, [=]() {
+       int selectedGrade = gradeComboBox->currentText().toInt();
+       QPair<bool, QVector<Series>> result = dbManager.getSeriesByGrade(selectedGrade);
+
+       if (result.first) {
+           loadSeries(result.second);
+       } else {
+           QMessageBox::warning(this, "Błąd", "Nie udało się wyszukać seriali");
+       }
+
+       searchDialog->close();
+    });
+
+    searchDialog->exec();
+}
+
+void MainWindow::loadAllSeries() {
+    if (!isLoggedIn) {
+        QMessageBox::warning(this, "Błąd", "Musisz być zalogowany");
+        return;
+    }
+    loadSeries();
 }
 
 MainWindow::~MainWindow()

@@ -69,6 +69,10 @@ bool MyAnimeListDialog::importFromXML() {
                             series.setEpisodesWatched(xml.readElementText().toInt());
                         }
 
+                        if (xml.name() == "series_episodes") {
+                            series.setAllEpisodes(xml.readElementText().toInt());
+                        }
+
                         if (xml.name() == "my_start_date") {
                             series.setStartingDate(xml.readElementText());
                         }

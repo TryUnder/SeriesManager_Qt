@@ -4,6 +4,7 @@
 #include <QString>
 #include <QDate>
 #include <QMap>
+#include <QDebug>
 
 class Series
 {
@@ -14,13 +15,14 @@ private:
     QString m_startingDate;
     QString m_endingDate;
     int m_episodesWatched;
+    int m_allEpisodes;
     QString m_url;
     QString m_category;
     int m_grade;
 
 public:
     Series(int id, QString title, QString genre, QString startingDate, QString endingDate,
-           int episodesWatched, QString url, QString category, int grade);
+           int episodesWatched, int allEpisodes, QString url, QString category, int grade);
     Series();
 
     enum class Category {
@@ -40,6 +42,7 @@ public:
     QString getStartingDate() const;
     QString getEndingDate() const;
     QString getEpisodesWatched() const;
+    QString getAllEpisodes() const;
     QString getUrl() const;
     QString getCategory() const;
     QString getGrade() const;
@@ -50,6 +53,7 @@ public:
     void setGrade(int grade);
     void setCategory(QString category);
     void setEpisodesWatched(int episodesWatched);
+    void setAllEpisodes(int allEpisodes);
 
     static bool isDefaultDate(const QString& date);
 };
