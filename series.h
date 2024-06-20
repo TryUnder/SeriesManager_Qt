@@ -16,13 +16,13 @@ private:
     QString m_endingDate;
     int m_episodesWatched;
     int m_allEpisodes;
-    QString m_url;
+    QString m_discLocation;
     QString m_category;
     int m_grade;
 
 public:
     Series(int id, QString title, QString genre, QString startingDate, QString endingDate,
-           int episodesWatched, int allEpisodes, QString url, QString category, int grade);
+           int episodesWatched, int allEpisodes, QString discLocation, QString category, int grade);
     Series();
 
     enum class Category {
@@ -43,7 +43,7 @@ public:
     QString getEndingDate() const;
     QString getEpisodesWatched() const;
     QString getAllEpisodes() const;
-    QString getUrl() const;
+    QString getDiscLocation() const;
     QString getCategory() const;
     QString getGrade() const;
 

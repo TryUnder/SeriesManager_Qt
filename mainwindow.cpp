@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionPo_ocenie, &QAction::triggered, this, &MainWindow::searchSeriesByGrade);
     connect(ui->actionShowAll, &QAction::triggered, this, &MainWindow::loadAllSeries);
 
+    connect(ui->actionObejrzyj_serial, &QAction::triggered, this, &MainWindow::watchSeries);
+
     ui->seriesTable->setSortingEnabled(true);
 
     updateUIBasedOnLoginStatus();
@@ -119,7 +121,7 @@ void MainWindow::addSeries() {
     QDate endDate = ui->endDateInput->date();
     int episodesWatched = ui->episodesWatchedInput->value();
     int allEpisodes = ui->allEpisodes->value();
-    QString url = ui->urlInput->text();
+    QString discLocation = ui->discLocationInput->text();
     QString status = ui->statusInput->currentText();
     int grade = ui->ratingSlider->value();
 
@@ -131,7 +133,7 @@ void MainWindow::addSeries() {
     QString formattedStartDate = startDate.toString("dd-MM-yyyy");
     QString formattedEndDate = endDate.toString("dd-MM-yyyy");
 
-    Series series(-1, title, genres, formattedStartDate, formattedEndDate, episodesWatched, allEpisodes, url, status, grade);
+    Series series(-1, title, genres, formattedStartDate, formattedEndDate, episodesWatched, allEpisodes, discLocation, status, grade);
 
     if (dbManager.addSeries(series)){
         QMessageBox::information(this, "Sukces", "Serial został dodany");
@@ -149,7 +151,7 @@ void MainWindow::loadSeries() {
 
     ui->seriesTable->setRowCount(0);
     ui->seriesTable->setColumnCount(11);
-    ui->seriesTable->setHorizontalHeaderLabels({"Tytuł", "Gatunki", "Rozpoczęto", "Zakończono", "Obejrzane Odcinki", "Wszystkie Odcinki", "URL", "Status", "Ocena", "Zatwierdź Zmiany", "ID"});
+    ui->seriesTable->setHorizontalHeaderLabels({"Tytuł", "Gatunki", "Rozpoczęto", "Zakończono", "Obejrzane Odcinki", "Wszystkie Odcinki", "Lokalizacja dyskowa", "Status", "Ocena", "Zatwierdź Zmiany", "ID"});
     QVector<Series> seriesList = dbManager.getSeries();
     for (int i = 0; i < seriesList.size(); i++) {
         try {
@@ -180,7 +182,7 @@ void MainWindow::loadSeries() {
             ui->seriesTable->setItem(i, 3, endItem);
             ui->seriesTable->setItem(i, 4, new QTableWidgetItem(seriesList.at(i).getEpisodesWatched()));
             ui->seriesTable->setItem(i, 5, new QTableWidgetItem(seriesList.at(i).getAllEpisodes()));
-            ui->seriesTable->setItem(i, 6, new QTableWidgetItem(seriesList.at(i).getUrl()));
+            ui->seriesTable->setItem(i, 6, new QTableWidgetItem(seriesList.at(i).getDiscLocation()));
             ui->seriesTable->setItem(i, 7, new QTableWidgetItem(seriesList.at(i).getCategory()));
             ui->seriesTable->setItem(i, 8, new QTableWidgetItem(seriesList.at(i).getGrade()));
 
@@ -208,7 +210,7 @@ void MainWindow::loadSeries(QVector<Series> seriesList) {
 
     ui->seriesTable->setRowCount(0);
     ui->seriesTable->setColumnCount(11);
-    ui->seriesTable->setHorizontalHeaderLabels({"Tytuł", "Gatunki", "Rozpoczęto", "Zakończono", "Obejrzane Odcinki", "Wszystkie Odcinki", "URL", "Status", "Ocena", "Zatwierdź Zmiany", "ID"});
+    ui->seriesTable->setHorizontalHeaderLabels({"Tytuł", "Gatunki", "Rozpoczęto", "Zakończono", "Obejrzane Odcinki", "Wszystkie Odcinki", "Lokalizacja dyskowa", "Status", "Ocena", "Zatwierdź Zmiany", "ID"});
     for (int i = 0; i < seriesList.size(); i++) {
         try {
             ui->seriesTable->insertRow(i);
@@ -238,7 +240,7 @@ void MainWindow::loadSeries(QVector<Series> seriesList) {
             ui->seriesTable->setItem(i, 3, endItem);
             ui->seriesTable->setItem(i, 4, new QTableWidgetItem(seriesList.at(i).getEpisodesWatched()));
             ui->seriesTable->setItem(i, 5, new QTableWidgetItem(seriesList.at(i).getAllEpisodes()));
-            ui->seriesTable->setItem(i, 6, new QTableWidgetItem(seriesList.at(i).getUrl()));
+            ui->seriesTable->setItem(i, 6, new QTableWidgetItem(seriesList.at(i).getDiscLocation()));
             ui->seriesTable->setItem(i, 7, new QTableWidgetItem(seriesList.at(i).getCategory()));
             ui->seriesTable->setItem(i, 8, new QTableWidgetItem(seriesList.at(i).getGrade()));
 
@@ -279,12 +281,12 @@ void MainWindow::acceptChanges() {
     QString newEndingDate = ui->seriesTable->item(row, 3)->text();
     int newEpisodesWatched = ui->seriesTable->item(row, 4)->text().toInt();
     int newAllEpisodes = ui->seriesTable->item(row, 5)->text().toInt();
-    QString newUrl = ui->seriesTable->item(row, 6)->text();
+    QString newDiscLocation = ui->seriesTable->item(row, 6)->text();
     QString newCategory = ui->seriesTable->item(row, 7)->text();
     int newGrade = ui->seriesTable->item(row, 8)->text().toInt();
 
     Series previousSelectedSerie = dbManager.getSeriesById(id);
-    Series updatedSerie(id, newTitle, newGenre, newStartingDate, newEndingDate, newEpisodesWatched, newAllEpisodes, newUrl, newCategory, newGrade);
+    Series updatedSerie(id, newTitle, newGenre, newStartingDate, newEndingDate, newEpisodesWatched, newAllEpisodes, newDiscLocation, newCategory, newGrade);
 
     if (CheckSeriesEquality(previousSelectedSerie, updatedSerie) == true) {
         QMessageBox::warning(this, "Błąd", "Nie dokonano żadnej zmiany");
@@ -306,7 +308,7 @@ bool MainWindow::CheckSeriesEquality(Series previousSeries, Series newSeries) {
            previousSeries.getEndingDate() == newSeries.getEndingDate() &&
            previousSeries.getEpisodesWatched() == newSeries.getEpisodesWatched() &&
            previousSeries.getAllEpisodes() == newSeries.getAllEpisodes() &&
-           previousSeries.getUrl() == newSeries.getUrl() &&
+           previousSeries.getDiscLocation() == newSeries.getDiscLocation() &&
            previousSeries.getCategory() == newSeries.getCategory() &&
            previousSeries.getGrade() == newSeries.getGrade();
 }
@@ -531,6 +533,15 @@ void MainWindow::loadAllSeries() {
         return;
     }
     loadSeries();
+}
+
+void MainWindow::watchSeries() {
+    if (!isLoggedIn) {
+        QMessageBox::warning(this, "Błąd", "Musisz być zalogowany");
+        return;
+    }
+    WatchManager* watchManager = new WatchManager(&dbManager, this);
+    watchManager->watchSeries();
 }
 
 MainWindow::~MainWindow()

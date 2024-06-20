@@ -60,7 +60,7 @@ void DatabaseManager::createTables() {
                                 "ending_date TEXT,"
                                 "episodes_watched INTEGER,"
                                 "all_episodes INTEGER,"
-                                "url TEXT,"
+                                "disc_location TEXT,"
                                 "category TEXT,"
                                 "grade INTEGER,"
                                 "PRIMARY KEY(id AUTOINCREMENT)"
@@ -176,15 +176,15 @@ bool DatabaseManager::deleteAccount(const QString &username, const QString &pass
 
 bool DatabaseManager::addSeries(const Series& series) {
     QSqlQuery query;
-    query.prepare("INSERT INTO Series (title, genre, starting_date, ending_date, episodes_watched, all_episodes, url, category, grade)"
-                  "VALUES (:title, :genre, :starting_date, :ending_date, :episodes_watched, :all_episodes, :url, :category, :grade)");
+    query.prepare("INSERT INTO Series (title, genre, starting_date, ending_date, episodes_watched, all_episodes, disc_location, category, grade)"
+                  "VALUES (:title, :genre, :starting_date, :ending_date, :episodes_watched, :all_episodes, :disc_location, :category, :grade)");
     query.bindValue(":title", series.getTitle());
     query.bindValue(":genre", series.getGenre());
     query.bindValue(":starting_date", series.getStartingDate());
     query.bindValue(":ending_date", series.getEndingDate());
     query.bindValue(":episodes_watched", series.getEpisodesWatched());
     query.bindValue(":all_episodes", series.getAllEpisodes());
-    query.bindValue(":url", series.getUrl());
+    query.bindValue(":disc_location", series.getDiscLocation());
     query.bindValue(":category", series.getCategory());
     query.bindValue(":grade", series.getGrade());
 
@@ -193,7 +193,7 @@ bool DatabaseManager::addSeries(const Series& series) {
 
 QVector<Series> DatabaseManager::getSeries() const {
     QVector<Series> seriesList;
-    QSqlQuery query("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, url, category, grade FROM Series");
+    QSqlQuery query("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, disc_location, category, grade FROM Series");
 
     while(query.next()) {
         Series series(
@@ -204,7 +204,7 @@ QVector<Series> DatabaseManager::getSeries() const {
             query.value("ending_date").toString(),
             query.value("episodes_watched").toInt(),
             query.value("all_episodes").toInt(),
-            query.value("url").toString(),
+            query.value("disc_location").toString(),
             query.value("category").toString(),
             query.value("grade").toInt()
         );
@@ -216,7 +216,7 @@ QVector<Series> DatabaseManager::getSeries() const {
 
 Series DatabaseManager::getSeriesById(int id) const {
     QSqlQuery query;
-    query.prepare("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, url, category, grade FROM Series WHERE id = :id");
+    query.prepare("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, disc_location, category, grade FROM Series WHERE id = :id");
     query.bindValue(":id", id);
 
     if (!query.exec()) {
@@ -232,11 +232,11 @@ Series DatabaseManager::getSeriesById(int id) const {
         QString ending_date = query.value("ending_date").toString();
         int episodesWatched = query.value("episodes_watched").toInt();
         int allEpisodes = query.value("all_episodes").toInt();
-        QString url = query.value("url").toString();
+        QString disc_location = query.value("disc_location").toString();
         QString status = query.value("category").toString();
         int grade = query.value("grade").toInt();
 
-        Series series(id, title, genre, starting_date, ending_date, episodesWatched, allEpisodes, url, status, grade);
+        Series series(id, title, genre, starting_date, ending_date, episodesWatched, allEpisodes, disc_location, status, grade);
         return series;
     } else {
         throw std::runtime_error("Nie znaleziono serialu o podanym id");
@@ -254,14 +254,14 @@ bool DatabaseManager::deleteSeries(int id) {
 bool DatabaseManager::updateSeries(const Series& series) {
     QSqlQuery query;
     query.prepare("UPDATE Series SET title = :title, genre = :genre, starting_date = :starting_date, ending_date = :ending_date, "
-                  "episodes_watched = :episodes_watched, all_episodes = :all_episodes, url = :url, category = :category, grade = :grade WHERE id = :id");
+                  "episodes_watched = :episodes_watched, all_episodes = :all_episodes, disc_location = :disc_location, category = :category, grade = :grade WHERE id = :id");
     query.bindValue(":title", series.getTitle());
     query.bindValue(":genre", series.getGenre());
     query.bindValue(":starting_date", series.getStartingDate());
     query.bindValue(":ending_date", series.getEndingDate());
     query.bindValue(":episodes_watched", series.getEpisodesWatched());
     query.bindValue(":all_episodes", series.getAllEpisodes());
-    query.bindValue(":url", series.getUrl());
+    query.bindValue(":disc_location", series.getDiscLocation());
     query.bindValue(":category", series.getCategory());
     query.bindValue(":grade", series.getGrade());
     query.bindValue(":id", series.getId());
@@ -272,7 +272,7 @@ bool DatabaseManager::updateSeries(const Series& series) {
 QPair<bool, QVector<Series>> DatabaseManager::getSeriesByTitle(const QString& title) {
     QVector<Series> seriesList;
     QSqlQuery query;
-    query.prepare("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, url, category, grade "
+    query.prepare("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, disc_location, category, grade "
                   "FROM Series WHERE title LIKE :title");
     query.bindValue(":title", "%" + title + "%");
 
@@ -290,7 +290,7 @@ QPair<bool, QVector<Series>> DatabaseManager::getSeriesByTitle(const QString& ti
                 query.value("ending_date").toString(),
                 query.value("episodes_watched").toInt(),
                 query.value("all_episodes").toInt(),
-                query.value("url").toString(),
+                query.value("disc_location").toString(),
                 query.value("category").toString(),
                 query.value("grade").toInt()
             );
@@ -303,7 +303,7 @@ QPair<bool, QVector<Series>> DatabaseManager::getSeriesByTitle(const QString& ti
 QPair<bool, QVector<Series>> DatabaseManager::getSeriesByGenre(const QString &genre) {
     QVector<Series> seriesList;
     QSqlQuery query;
-    query.prepare("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, url, category, grade "
+    query.prepare("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, disc_location, category, grade "
                   "FROM Series WHERE genre LIKE :genre");
     query.bindValue(":genre", "%" + genre + "%");
 
@@ -321,7 +321,7 @@ QPair<bool, QVector<Series>> DatabaseManager::getSeriesByGenre(const QString &ge
                 query.value("ending_date").toString(),
                 query.value("episodes_watched").toInt(),
                 query.value("all_episodes").toInt(),
-                query.value("url").toString(),
+                query.value("disc_location").toString(),
                 query.value("category").toString(),
                 query.value("grade").toInt()
             );
@@ -334,7 +334,7 @@ QPair<bool, QVector<Series>> DatabaseManager::getSeriesByGenre(const QString &ge
 QPair<bool, QVector<Series>> DatabaseManager::getSeriesByCategory(const QString& category) {
     QVector<Series> seriesList;
     QSqlQuery query;
-    query.prepare("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, url, category, grade "
+    query.prepare("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, disc_location, category, grade "
                   "FROM Series WHERE category LIKE :category");
     query.bindValue(":category", category);
 
@@ -352,7 +352,7 @@ QPair<bool, QVector<Series>> DatabaseManager::getSeriesByCategory(const QString&
                 query.value("ending_date").toString(),
                 query.value("episodes_watched").toInt(),
                 query.value("all_episodes").toInt(),
-                query.value("url").toString(),
+                query.value("disc_location").toString(),
                 query.value("category").toString(),
                 query.value("grade").toInt()
             );
@@ -365,7 +365,7 @@ QPair<bool, QVector<Series>> DatabaseManager::getSeriesByCategory(const QString&
 QPair<bool, QVector<Series>> DatabaseManager::getSeriesByGrade(const int& grade) {
     QVector<Series> seriesList;
     QSqlQuery query;
-    query.prepare("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, url, category, grade "
+    query.prepare("SELECT id, title, genre, starting_date, ending_date, episodes_watched, all_episodes, disc_location, category, grade "
                   "FROM Series WHERE grade LIKE :grade");
     query.bindValue(":grade", grade);
 
@@ -383,7 +383,7 @@ QPair<bool, QVector<Series>> DatabaseManager::getSeriesByGrade(const int& grade)
                 query.value("ending_date").toString(),
                 query.value("episodes_watched").toInt(),
                 query.value("all_episodes").toInt(),
-                query.value("url").toString(),
+                query.value("disc_location").toString(),
                 query.value("category").toString(),
                 query.value("grade").toInt()
             );

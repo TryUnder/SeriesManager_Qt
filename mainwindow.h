@@ -8,6 +8,9 @@
 #include "remindpassword.h"
 #include "deleteaccount.h"
 #include "myanimelistdialog.h"
+#include <QMediaPlayer>
+#include <QVideoWidget>
+#include "watchmanager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,6 +24,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     bool CheckSeriesEquality(Series previousSeries, Series newSeries);
+    //void loadSeries(const QVector<Series>& seriesList);
 
 private:
     Ui::MainWindow *ui;
@@ -48,5 +52,7 @@ private slots:
     void searchSeriesByCategory();
     void searchSeriesByGrade();
     void loadAllSeries();
+
+    void watchSeries();
 };
 #endif // MAINWINDOW_H

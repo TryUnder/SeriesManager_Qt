@@ -18,7 +18,8 @@ SOURCES += \
     mainwindow.cpp \
     myanimelistdialog.cpp \
     remindpassword.cpp \
-    series.cpp
+    series.cpp \
+    watchmanager.cpp
 
 HEADERS += \
     LoginAccountDialog.h \
@@ -29,7 +30,8 @@ HEADERS += \
     mainwindow.h \
     myanimelistdialog.h \
     remindpassword.h \
-    series.h
+    series.h \
+    watchmanager.h
 
 FORMS += \
     createAccount.ui \

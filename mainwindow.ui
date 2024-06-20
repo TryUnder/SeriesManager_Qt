@@ -160,16 +160,16 @@
        </widget>
       </item>
       <item row="6" column="0">
-       <widget class="QLabel" name="urlLabel">
+       <widget class="QLabel" name="discLocationLabel">
         <property name="text">
-         <string>URL</string>
+         <string>Lokalizacja dyskowa</string>
         </property>
        </widget>
       </item>
       <item row="6" column="1">
-       <widget class="QLineEdit" name="urlInput">
+       <widget class="QLineEdit" name="discLocationInput">
         <property name="placeholderText">
-         <string>URL</string>
+         <string>Lokalizacja dyskowa</string>
         </property>
        </widget>
       </item>
@@ -297,12 +297,12 @@
       </column>
       <column>
        <property name="text">
-        <string>URL</string>
+        <string>Lokalizacja dyskowa</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Kategoria</string>
+        <string>Status</string>
        </property>
       </column>
       <column>
@@ -354,9 +354,16 @@
     <addaction name="actionPo_kategorii"/>
     <addaction name="actionShowAll"/>
    </widget>
+   <widget class="QMenu" name="menuOgladanie">
+    <property name="title">
+     <string>Ogladanie</string>
+    </property>
+    <addaction name="actionObejrzyj_serial"/>
+   </widget>
    <addaction name="menuOpcje"/>
    <addaction name="menuWyszukaj_Seriale"/>
    <addaction name="menuOpcje_Importu"/>
+   <addaction name="menuOgladanie"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="createAccountAction_3">
@@ -422,6 +429,11 @@
   <action name="actionShowAll">
    <property name="text">
     <string>Wyświetl wszystkie</string>
+   </property>
+  </action>
+  <action name="actionObejrzyj_serial">
+   <property name="text">
+    <string>Obejrzyj serial</string>
    </property>
   </action>
  </widget>
