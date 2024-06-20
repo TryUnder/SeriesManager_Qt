@@ -16,7 +16,7 @@
 #include "databasemanager.h"
 #include "mainwindow.h"
 
-class WatchManager : public QObject
+class WatchManager : public QMainWindow
 {
     Q_OBJECT
 public:
@@ -28,10 +28,8 @@ private slots:
     void playEpisode(const QString& episodePath);
 
 private:
-    void restoreOriginalCentralWidget();
 
     DatabaseManager* m_dbManager;
-    QWidget* parentWidget;
     QWidget* originalCentralWidget = nullptr;
 };
 

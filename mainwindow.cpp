@@ -541,7 +541,7 @@ void MainWindow::watchSeries() {
         return;
     }
     WatchManager* watchManager = new WatchManager(&dbManager, this);
-    watchManager->watchSeries();
+    watchManager->show();
 }
 
 MainWindow::~MainWindow()
